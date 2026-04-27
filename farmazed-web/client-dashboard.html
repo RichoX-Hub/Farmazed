@@ -6,9 +6,9 @@
   <title>Portal del Cliente | Farmazed</title>
   <link rel="icon" href="src/images/favicon_Farzed.png">
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600&family=Open+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link href="../../Iris/References/approx-dashboard-template/approx-v1.0/dist/assets/css/bootstrap.min.css" rel="stylesheet">
-  <link href="../../Iris/References/approx-dashboard-template/approx-v1.0/dist/assets/css/icons.min.css" rel="stylesheet">
-  <link href="../../Iris/References/approx-dashboard-template/approx-v1.0/dist/assets/css/app.min.css" rel="stylesheet">
+  <link href="src/approx/css/bootstrap.min.css" rel="stylesheet">
+  <link href="src/approx/css/icons.min.css" rel="stylesheet">
+  <link href="src/approx/css/app.min.css" rel="stylesheet">
   <style>
     :root {
       --bs-startbar-collapsed-width: 105px;
@@ -128,14 +128,15 @@
     .fz-activity-date { color: #9ca3af; white-space: nowrap; font-family: var(--fz-mono); font-size: .68rem; }
 
     /* ── Documents module ── */
-    .fz-panel { background: #fff; border: 0.5px solid var(--fz-border); border-radius: 6px; padding: 22px; }
-    .fz-tabs { display: flex; gap: 2px; border-bottom: 1.5px solid #e5e7eb; margin-bottom: 18px; }
-    .fz-tab { padding: 7px 14px; font-size: .75rem; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1.5px; transition: all .13s; background: none; border-top: none; border-left: none; border-right: none; }
+    .fz-panel { background: #fff; border: 0.5px solid var(--fz-border); border-radius: 8px; padding: 28px 30px 32px; min-height: 320px; overflow: hidden; }
+    .fz-tabs { display: flex; gap: 2px; border-bottom: 1.5px solid #e5e7eb; margin-bottom: 20px; flex-wrap: wrap; }
+    .fz-tab { padding: 8px 16px; font-size: .75rem; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1.5px; transition: all .13s; background: none; border-top: none; border-left: none; border-right: none; }
     .fz-tab:hover { color: var(--fz-primary); }
     .fz-tab.active { color: var(--fz-primary); border-bottom-color: var(--fz-primary); }
 
-    .fz-flat-doc { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 0.5px solid #f0f0f0; }
-    .fz-flat-doc:last-child { border-bottom: none; }
+    #docs-list { padding-bottom: 4px; }
+    .fz-flat-doc { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 0.5px solid #f0f0f0; }
+    .fz-flat-doc:last-child { border-bottom: none; padding-bottom: 0; }
     .fz-flat-doc-info { flex: 1; min-width: 0; }
     .fz-flat-doc-name { font-size: .8rem; color: #1e293b; font-weight: 600; }
     .fz-flat-doc-meta { font-size: .68rem; color: #9ca3af; margin-top: 2px; }
@@ -247,8 +248,58 @@
       .fz-prod-center { width: 100%; order: 5; flex: none; padding: 8px 0 0; }
       .fz-prod-right { width: 100%; order: 4; justify-content: flex-start; }
       .fz-type-grid { grid-template-columns: repeat(2,1fr); }
-      .fz-chat-layout { grid-template-columns: 1fr; height: auto; }
-      .fz-threads-sidebar { display: none; }
+
+      /* Chat: stack sidebar above chat area */
+      .fz-chat-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        height: auto;
+        min-height: 560px;
+      }
+      .fz-threads-sidebar {
+        display: flex;
+        border-right: none;
+        border-bottom: 0.5px solid var(--fz-border);
+      }
+      .fz-threads-sidebar #threads-list {
+        overflow-y: visible;
+        flex: 1;
+      }
+      .fz-thread-item .preview { display: none; }
+      .fz-chat-main { min-height: 380px; }
+    }
+
+    /* ── Mobile sidebar fix (phones only ≤767px) ── */
+    @media (max-width: 767.98px) {
+      /* Content takes full width */
+      .page-wrapper { margin-left: 0 !important; }
+      .topbar       { left: 0 !important; width: 100% !important; }
+
+      /* Sidebar hidden off-screen when collapsed */
+      [data-sidebar-size="collapsed"] .startbar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+      }
+
+      /* Sidebar slides in when hamburger pressed */
+      [data-sidebar-size="default"] .startbar {
+        transform: translateX(0) !important;
+        transition: transform 0.25s ease;
+        position: fixed !important;
+        top: 0; left: 0;
+        height: 100vh;
+        z-index: 1055;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.35);
+      }
+
+      /* Overlay when sidebar is open */
+      [data-sidebar-size="default"] .startbar-overlay {
+        display: block !important;
+        position: fixed !important;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        z-index: 1050;
+      }
     }
   </style>
 </head>
@@ -677,8 +728,8 @@
 </div><!-- page-wrapper -->
 
 <!-- ══════════════════ SCRIPTS ══════════════════ -->
-<script src="../../Iris/References/approx-dashboard-template/approx-v1.0/dist/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="../../Iris/References/approx-dashboard-template/approx-v1.0/dist/assets/js/app.js"></script>
+<script src="src/approx/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="src/approx/js/app.js"></script>
 <script>
 // ── Auth guard ──
 (function() {
