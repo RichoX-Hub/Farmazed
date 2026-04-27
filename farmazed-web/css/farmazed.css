@@ -618,4 +618,30 @@
     #categorias .features-items .line {
         margin: 6px auto;
     }
+
+    /* ── Fix horizontal overflow (white stripe on right) ── */
+    html, body {
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+    #header,
+    .subheader,
+    .inner-subheader,
+    .row2,
+    .upper-header,
+    #nav,
+    .wrapper,
+    .l-more,
+    .inner-footer,
+    .end-footer,
+    .lastdiv {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .flexslider,
+    .flexslider .slides,
+    .flexslider .slides > li {
+        max-width: 100vw !important;
+        overflow: hidden !important;
+    }
 }
