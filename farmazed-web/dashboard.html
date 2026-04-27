@@ -320,6 +320,41 @@ tr:hover td { background: #fafcff; }
     <div class="modules-grid" id="modules-grid"></div>
   </div>
 
+  <!-- QR TRACKER -->
+  <div class="panel" id="qr-section" style="margin-top:18px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <div class="sec-title" style="margin:0;">Escaneos QR</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span id="qr-status" style="font-size:.7rem;color:#9ca3af;"></span>
+        <button onclick="loadQR()" style="font-size:.7rem;padding:4px 10px;border:1px solid #d1d5db;border-radius:4px;background:#fff;cursor:pointer;color:#374151;">↻ Actualizar</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;" id="qr-kpis">
+      <div style="background:#f4f6fb;border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-size:1.6rem;font-weight:700;color:#1B4F8A;" id="qr-total">—</div>
+        <div style="font-size:.7rem;color:#6b7280;margin-top:2px;">Total Escaneos</div>
+      </div>
+      <div style="background:#f4f6fb;border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-size:1.6rem;font-weight:700;color:#1B4F8A;" id="qr-today">—</div>
+        <div style="font-size:.7rem;color:#6b7280;margin-top:2px;">Hoy</div>
+      </div>
+      <div style="background:#f4f6fb;border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-size:1.6rem;font-weight:700;color:#1B4F8A;" id="qr-week">—</div>
+        <div style="font-size:.7rem;color:#6b7280;margin-top:2px;">Esta Semana</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <div style="font-size:.7rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Por Dispositivo</div>
+        <div id="qr-devices" style="font-size:.78rem;color:#374151;"></div>
+      </div>
+      <div>
+        <div style="font-size:.7rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Últimos Escaneos</div>
+        <div id="qr-recent" style="font-size:.72rem;color:#6b7280;"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- TABLE -->
   <div id="table-section">
     <div class="sec-title">Expedientes Activos</div>
@@ -693,6 +728,52 @@ document.getElementById('foot-contact').innerHTML =
   '<p>' + fc.address + '</p>' +
   '<p>' + fc.person + '<br>' + fc.title + '</p>';
 
+
+// ── QR Tracker ──
+const QR_API = 'https://farmazed-tracker-267037695065.us-central1.run.app/api/scans?key=fz-admin-2026';
+
+function loadQR() {
+  document.getElementById('qr-status').textContent = 'Cargando...';
+  fetch(QR_API)
+    .then(r => r.json())
+    .then(data => {
+      const scans = data.scans || [];
+      const now = new Date();
+      const todayStr = now.toISOString().slice(0,10);
+      const weekAgo = new Date(now - 7*24*60*60*1000);
+
+      const today = scans.filter(s => s.timestamp.slice(0,10) === todayStr).length;
+      const week  = scans.filter(s => new Date(s.timestamp) >= weekAgo).length;
+
+      document.getElementById('qr-total').textContent = data.total;
+      document.getElementById('qr-today').textContent = today;
+      document.getElementById('qr-week').textContent  = week;
+
+      // Devices
+      const devices = scans.reduce((acc, s) => { acc[s.device] = (acc[s.device]||0)+1; return acc; }, {});
+      const icons = { mobile:'📱', tablet:'📲', desktop:'💻' };
+      document.getElementById('qr-devices').innerHTML = Object.entries(devices)
+        .sort((a,b) => b[1]-a[1])
+        .map(([d,c]) => `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:0.5px solid #f0f0f0;">
+          <span>${icons[d]||'🖥'} ${d}</span><strong>${c}</strong></div>`).join('') || '<span style="color:#9ca3af;">Sin datos</span>';
+
+      // Recent 5
+      document.getElementById('qr-recent').innerHTML = scans.slice(0,5)
+        .map(s => {
+          const d = new Date(s.timestamp);
+          const label = d.toLocaleDateString('es-PA', {month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit'});
+          return `<div style="padding:3px 0;border-bottom:0.5px solid #f5f5f5;">${icons[s.device]||'🖥'} ${label}</div>`;
+        }).join('') || '<span style="color:#9ca3af;">Sin escaneos aún</span>';
+
+      document.getElementById('qr-status').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit'});
+    })
+    .catch(() => {
+      document.getElementById('qr-status').textContent = 'Error al cargar';
+    });
+}
+
+loadQR();
+setInterval(loadQR, 5 * 60 * 1000); // auto-refresh cada 5 min
 </script>
 </body>
 </html>
