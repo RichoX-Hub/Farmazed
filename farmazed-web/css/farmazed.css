@@ -421,12 +421,12 @@
 @media (max-width: 768px) {
     .fz-about-cols { flex-direction: column; gap: 24px; }
     .fz-planes-grid { flex-direction: column; }
-    .fz-hero-slide { height: 400px; }
-    .fz-hero-slide::after { font-size: 1.2rem; white-space: normal; text-align: center; width: 90%; }
+    .fz-hero-slide { height: 290px; }
+    .fz-hero-slide::after { font-size: 1rem; white-space: normal; text-align: center; width: 90%; }
 
-    /* Slider: half height, right-anchored crop */
+    /* Slider: reduced height on mobile so banner text is visible */
     .fz-slide-bg {
-        height: 406px;
+        height: 296px;
         object-position: right center;
     }
 
