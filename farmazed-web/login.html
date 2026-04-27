@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Acceso | Farmazed</title>
+    <link rel="icon" type="image/png" href="src/images/favicon_Farzed.png">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;700&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(160deg, #0d4f80 0%, #2190d7 55%, #1572b0 100%);
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        /* Grid overlay — same as hero */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+
+        /* ── Card ── */
+        .fz-card {
+            position: relative;
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.28);
+            width: 100%;
+            max-width: 400px;
+            margin: 24px 16px;
+            overflow: hidden;
+        }
+
+        /* Blue accent bar at top */
+        .fz-card-top {
+            background: linear-gradient(135deg, #0d4f80 0%, #2190d7 100%);
+            padding: 32px 32px 28px;
+            text-align: center;
+        }
+
+        .fz-card-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-decoration: none;
+            margin-bottom: 4px;
+        }
+
+        .fz-card-logo img {
+            height: 56px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .fz-card-logo-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: #fff;
+            line-height: 1.15;
+            letter-spacing: 0.03em;
+            text-align: left;
+        }
+
+        .fz-card-logo-text small {
+            display: block;
+            font-size: 0.55rem;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 400;
+        }
+
+        .fz-card-subtitle {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 300;
+            color: rgba(255,255,255,0.65);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-top: 10px;
+        }
+
+        /* ── Form body ── */
+        .fz-card-body {
+            padding: 32px 32px 28px;
+        }
+
+        .fz-field {
+            margin-bottom: 18px;
+        }
+
+        .fz-field label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
+        }
+
+        .fz-field input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid #dde3e8;
+            border-radius: 3px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.875rem;
+            color: #333;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fafcfe;
+        }
+
+        .fz-field input:focus {
+            border-color: #2190d7;
+            box-shadow: 0 0 0 3px rgba(33,144,215,0.12);
+            background: #fff;
+        }
+
+        .fz-login-btn {
+            width: 100%;
+            padding: 13px;
+            background: #2190d7;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 6px;
+        }
+
+        .fz-login-btn:hover { background: #0d4f80; }
+
+        #login-msg {
+            font-size: 0.78rem;
+            color: #c0392b;
+            text-align: center;
+            margin-top: 10px;
+            min-height: 18px;
+        }
+
+        /* ── Footer links ── */
+        .fz-card-footer {
+            padding: 14px 32px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .fz-card-footer a {
+            font-size: 0.75rem;
+            color: #2190d7;
+            text-decoration: none;
+        }
+
+        .fz-card-footer a:hover { text-decoration: underline; }
+
+        .fz-card-footer span {
+            font-size: 0.75rem;
+            color: #ccc;
+        }
+
+        /* ── Copyright ── */
+        .fz-login-copy {
+            position: fixed;
+            bottom: 16px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.04em;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 480px) {
+            .fz-card-top { padding: 24px 24px 20px; }
+            .fz-card-body { padding: 24px 24px 20px; }
+            .fz-card-footer { padding: 12px 24px 18px; flex-direction: column; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="fz-card">
+
+        <div class="fz-card-top">
+            <a href="index.html" class="fz-card-logo">
+                <img src="src/images/Logo.png" alt="Farmazed">
+                <div class="fz-card-logo-text">
+                    Farmazed
+                    <small>Asuntos Regulatorios</small>
+                </div>
+            </a>
+            <div class="fz-card-subtitle">Portal de Clientes</div>
+        </div>
+
+        <div class="fz-card-body">
+            <form id="login-form" autocomplete="off">
+                <div class="fz-field">
+                    <label for="usuario">Usuario</label>
+                    <input type="text" id="usuario" name="usuario" placeholder="Correo electrónico" autocomplete="username">
+                </div>
+                <div class="fz-field">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button type="submit" class="fz-login-btn">Ingresar</button>
+                <div id="login-msg"></div>
+            </form>
+        </div>
+
+        <div class="fz-card-footer">
+            <a href="#">¿Olvidó su contraseña?</a>
+            <span>·</span>
+            <a href="index.html">← Volver al sitio</a>
+        </div>
+
+        <div style="padding: 0 32px 24px;">
+            <a href="index.html" style="
+                display: block;
+                text-align: center;
+                padding: 10px;
+                border: 1px solid #dde3e8;
+                border-radius: 3px;
+                font-family: 'Open Sans', sans-serif;
+                font-size: 0.82rem;
+                color: #666;
+                text-decoration: none;
+                transition: background 0.2s, color 0.2s;
+            " onmouseover="this.style.background='#f4f7fa';this.style.color='#2190d7'"
+               onmouseout="this.style.background='';this.style.color='#666'">
+                ← Back to Landing Page
+            </a>
+        </div>
+
+    </div>
+
+    <div class="fz-login-copy">&copy; 2026 Farmazed &middot; Panamá</div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var msg = document.getElementById('login-msg');
+            var user = document.getElementById('usuario').value.trim();
+            var pass = document.getElementById('password').value;
+            if (!user || !pass) {
+                msg.textContent = 'Complete todos los campos.';
+                return;
+            }
+            msg.style.color = '#2190d7';
+            msg.textContent = 'Verificando credenciales…';
+            setTimeout(function() {
+                if (user === 'ricardo' && pass === 'admins123') {
+                    sessionStorage.setItem('fz_user', 'Ricardo Pimentel');
+                    sessionStorage.setItem('fz_role', 'Administrador');
+                    window.location.href = 'dashboard.html';
+                } else if (user === 'user' && pass === 'admins123') {
+                    sessionStorage.setItem('fz_client', 'Carlos Méndez');
+                    sessionStorage.setItem('fz_client_empresa', 'Laboratorios Centroamérica S.A.');
+                    window.location.href = 'client-dashboard.html';
+                } else {
+                    msg.style.color = '#c0392b';
+                    msg.textContent = 'Usuario o contraseña incorrectos.';
+                }
+            }, 800);
+        });
+    </script>
+
+</body>
+</html>

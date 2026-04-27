@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmazed | Propuesta Estratégica 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00897B;
+            --primary-light: rgba(0, 137, 123, 0.12);
+            --primary-glow: rgba(0, 137, 123, 0.25);
+            --accent: #E8F5E9;
+            --gold: #C5A028;
+            --bg-dark: #080D0B;
+            --bg-mid: #0E1510;
+            --card-bg: rgba(15, 26, 20, 0.85);
+            --border: rgba(0, 137, 123, 0.15);
+            --border-light: rgba(255, 255, 255, 0.06);
+            --text-muted: #6B8F80;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: #E8F5E9;
+            overflow: hidden;
+            margin: 0;
+            cursor: default;
+        }
+
+        h1, h2, h3, .serif { font-family: 'Fraunces', serif; }
+
+        /* ─── SLIDES ─── */
+        .slide {
+            display: none;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── NOISE GRAIN ─── */
+        .grain::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ─── GRID PATTERN ─── */
+        .grid-bg {
+            background-image:
+                linear-gradient(rgba(0,137,123,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,137,123,0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* ─── GLASS CARD ─── */
+        .glass {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            backdrop-filter: blur(16px);
+            transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .glass:hover {
+            border-color: rgba(0, 137, 123, 0.35);
+            transform: translateY(-3px);
+        }
+
+        /* ─── ACCENT LINE ─── */
+        .accent-line {
+            width: 36px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+            margin: 1rem 0;
+        }
+
+        /* ─── NAVIGATION ─── */
+        .nav-btn {
+            position: fixed;
+            bottom: 2rem;
+            padding: 0.7rem 1.4rem;
+            background: rgba(0, 137, 123, 0.08);
+            color: #E8F5E9;
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            cursor: pointer;
+            z-index: 200;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.03em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 137, 123, 0.2);
+            border-color: var(--primary);
+        }
+
+        /* ─── PROGRESS BAR ─── */
+        #progress {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), #26C6B0);
+            transition: width 0.45s ease;
+            z-index: 300;
+        }
+
+        /* ─── SLIDE COUNTER ─── */
+        #counter {
+            position: fixed;
+            bottom: 2.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            z-index: 200;
+        }
+
+        /* ─── GLOW ORBS ─── */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .orb-teal { background: rgba(0, 137, 123, 0.18); }
+        .orb-gold { background: rgba(197, 160, 40, 0.10); }
+
+        /* ─── TAG ─── */
+        .tag {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            padding: 0.25rem 0.85rem;
+        }
+
+        /* ─── PILL ─── */
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .pill-green { background: rgba(0,137,123,0.12); color: #4DD0C4; border: 1px solid rgba(0,137,123,0.2); }
+        .pill-gold  { background: rgba(197,160,40,0.12); color: #C5A028; border: 1px solid rgba(197,160,40,0.2); }
+        .pill-red   { background: rgba(239,68,68,0.12); color: #F87171; border: 1px solid rgba(239,68,68,0.2); }
+
+        /* ─── PLAN CARD ─── */
+        .plan-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .plan-card.featured {
+            border-color: rgba(0,137,123,0.45) !important;
+            box-shadow: 0 0 40px rgba(0,137,123,0.15);
+            transform: scale(1.04);
+        }
+        .plan-card.featured:hover { transform: scale(1.04) translateY(-3px); }
+
+        /* ─── NUMBER LABEL ─── */
+        .num-label {
+            font-family: 'Fraunces', serif;
+            font-size: 5rem;
+            line-height: 1;
+            color: rgba(0,137,123,0.15);
+            font-weight: 700;
+        }
+
+        /* ─── DIVIDER ─── */
+        .h-divider { width: 100%; height: 1px; background: var(--border-light); }
+
+        /* ─── ICON BOX ─── */
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .icon-teal { background: rgba(0,137,123,0.12); border: 1px solid rgba(0,137,123,0.2); }
+        .icon-gold  { background: rgba(197,160,40,0.12); border: 1px solid rgba(197,160,40,0.2); }
+        .icon-red   { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.15); }
+        .icon-blue  { background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.15); }
+
+        /* Stat value */
+        .stat-val {
+            font-family: 'Fraunces', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+
+        /* Content container */
+        .content { position: relative; z-index: 10; padding: 3.5rem 4.5rem; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+
+        @media (max-width: 900px) {
+            .content { padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="progress" style="width: 9.09%"></div>
+<div id="counter">01 / 11</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 1 — PORTADA
+════════════════════════════════════════════ -->
+<div class="slide active grain grid-bg">
+    <div class="orb orb-teal" style="width:600px;height:600px;top:-100px;right:-150px;"></div>
+    <div class="orb orb-gold" style="width:400px;height:400px;bottom:-100px;left:5%;"></div>
+
+    <div class="content">
+        <div class="flex items-center gap-3 mb-10">
+            <!-- Logo placeholder: pill with F -->
+            <div style="width:48px;height:48px;background:var(--primary);border-radius:14px;display:flex;align-items:center;justify-content:center;">
+                <span style="font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;color:#fff;">F</span>
+            </div>
+            <span style="font-family:'Fraunces',serif;font-size:1.3rem;font-weight:400;letter-spacing:0.05em;color:#E8F5E9;">Farmazed</span>
+        </div>
+
+        <span class="tag mb-6">Propuesta Estratégica de Servicios · 2026</span>
+
+        <h1 style="font-size:clamp(3rem,6vw,5.5rem);font-weight:300;line-height:1.05;margin:0 0 1rem;">
+            Registro Sanitario,<br>
+            <em style="color:var(--primary);">sin fricciones.</em>
+        </h1>
+
+        <div class="accent-line"></div>
+
+        <p style="font-size:1.15rem;color:var(--text-muted);max-width:580px;line-height:1.75;margin:0.5rem 0 2.5rem;">
+            Servicios integrales de asuntos regulatorios para la obtención y mantenimiento
+            de registros sanitarios ante la DNFD&nbsp;— MINSA&nbsp;Panamá.
+        </p>
+
+        <button onclick="changeSlide(1)" style="background:var(--primary);color:#fff;border:none;padding:1rem 2rem;border-radius:14px;font-size:0.9rem;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.6rem;transition:all 0.2s;">
+            Ver Propuesta &nbsp;→
+        </button>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 2 — QUIÉNES SOMOS
+════════════════════════════════════════════ -->
+<div class="slide grain" style="background:var(--bg-mid);">
+    <div class="orb orb-teal" style="width:500px;height:500px;top:50%;left:-200px;transform:translateY(-50%);"></div>
+
+    <div class="content">
+        <div class="max-w-5xl mx-auto w-full">
+            <span class="tag">Sobre Nosotros</span>
+            <h2 style="font-size:clamp(2.2rem,4.5vw,3.8rem);font-weight:400;margin:1rem 0 0.5rem;">Quiénes Somos</h2>
+            <div class="accent-line"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;margin-top:2rem;align-items:start;">
+                <div>
+                    <p style="font-size:1.1rem;color:#b0cfc5;line-height:1.85;margin-bottom:1.5rem;">
+                        <strong style="color:#fff;">Farmazed</strong> es una firma panameña especializada en asuntos regulatorios farmacéuticos. Actuamos como el puente técnico y legal entre fabricantes, importadores y distribuidores de productos de salud, y las autoridades sanitarias de Panamá.
+                    </p>
+                    <p style="font-size:1rem;color:var(--text-muted);line-height:1.8;">
+                        Nuestro equipo domina el marco normativo vigente — <em>Decreto Ejecutivo N.° 27 de 2024, Ley 419, RTCAs y resoluciones complementarias</em> — para guiar cada expediente desde su concepción hasta la obtención del registro sanitario.
+                    </p>
+
+                    <div class="h-divider" style="margin:1.8rem 0;"></div>
+
+                    <div class="glass p-5" style="border-left:3px solid var(--primary);">
+                        <p style="font-style:italic;color:#b0cfc5;font-size:0.95rem;line-height:1.7;">
+                            "Convertimos la complejidad regulatoria en procesos claros, documentados y exitosos."
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:1.2rem;">
+                    <div class="glass p-6" style="display:flex;gap:1rem;align-items:flex-start;">
+                        <div class="icon-box icon-teal">🏛️</div>
+                        <div>
+                            <h5 style="font-weight:600;margin:0 0 0.3rem;">Marco Regulatorio Experto</h5>
+                            <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Decreto 27 de 2024, Ley 419, RTCAs, Res. 126/2021, Res. 550/2019 y más.</p>
+                        </div>
+                    </div>
+                    <div class="glass p-6" style="display:flex;gap:1rem;align-items:flex-start;">
+                        <div class="icon-box icon-gold">📋</div>
+                        <div>
+                            <h5 style="font-weight:600;margin:0 0 0.3rem;">Gestión Integral de Dossiers</h5>
+                            <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Compilación, revisión y tramitación de expedientes ante la DNFD e IEA.</p>
+                        </div>
+                    </div>
+                    <div class="glass p-6" style="display:flex;gap:1rem;align-items:flex-start;">
+                        <div class="icon-box icon-blue">🔬</div>
+                        <div>
+                            <h5 style="font-weight:600;margin:0 0 0.3rem;">Múltiples Categorías de Producto</h5>
+                            <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Desde síntesis química hasta suplementos, biológicos, fitofármacos y más.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 3 — EL PROBLEMA
+════════════════════════════════════════════ -->
+<div class="slide grain grid-bg">
+    <div class="orb orb-red" style="background:rgba(239,68,68,0.08);width:500px;height:500px;top:-100px;right:-100px;filter:blur(90px);"></div>
+
+    <div class="content">
+        <div class="max-w-5xl mx-auto w-full">
+            <span class="tag">Contexto del Mercado</span>
+            <h2 style="font-size:clamp(2rem,4vw,3.4rem);font-weight:400;margin:1rem 0 0.5rem;">El Problema: Complejidad Regulatoria sin Guía</h2>
+            <div class="accent-line"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;">
+                <div class="glass p-7">
+                    <div class="icon-box icon-red" style="margin-bottom:1rem;">⚠️</div>
+                    <h3 style="font-family:'Fraunces',serif;font-weight:400;font-size:1.3rem;margin:0 0 0.75rem;">Marco Normativo Fragmentado</h3>
+                    <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.75;">El registro sanitario en Panamá involucra más de 10 instrumentos normativos vigentes: decretos ejecutivos, RTCAs, resoluciones y circulares DNFD. Una sola omisión puede costar meses de retraso.</p>
+                </div>
+                <div class="glass p-7">
+                    <div class="icon-box icon-gold" style="margin-bottom:1rem;">⏳</div>
+                    <h3 style="font-family:'Fraunces',serif;font-weight:400;font-size:1.3rem;margin:0 0 0.75rem;">Tiempos y Costos Elevados</h3>
+                    <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.75;">Los expedientes incompletos o mal documentados generan rechazos, subsanaciones repetidas y costos ocultos en pagos de tasas, análisis del IEA y honorarios legales no planificados.</p>
+                </div>
+                <div class="glass p-7">
+                    <div class="icon-box icon-blue" style="margin-bottom:1rem;">🔍</div>
+                    <h3 style="font-family:'Fraunces',serif;font-weight:400;font-size:1.3rem;margin:0 0 0.75rem;">Falta de Especialización Interna</h3>
+                    <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.75;">La mayoría de importadores y distribuidores no cuentan con personal interno dedicado a asuntos regulatorios, quedando expuestos a interpretaciones incorrectas de la norma.</p>
+                </div>
+                <div class="glass p-7">
+                    <div class="icon-box icon-teal" style="margin-bottom:1rem;">🌐</div>
+                    <h3 style="font-family:'Fraunces',serif;font-weight:400;font-size:1.3rem;margin:0 0 0.75rem;">Cambio Normativo Constante</h3>
+                    <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.75;">Con la entrada en vigor del Decreto 27 de 2024 y la Ley 419, el panorama regulatorio panameño se ha renovado sustancialmente, requiriendo actualización permanente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 4 — NUESTRA SOLUCIÓN
+════════════════════════════════════════════ -->
+<div class="slide grain" style="background:var(--bg-mid);">
+    <div class="orb orb-teal" style="width:700px;height:700px;bottom:-200px;right:-200px;"></div>
+
+    <div class="content">
+        <div class="max-w-5xl mx-auto w-full">
+            <span class="tag">Nuestra Propuesta</span>
+            <h2 style="font-size:clamp(2rem,4vw,3.4rem);font-weight:400;margin:1rem 0 0.5rem;">La Solución Farmazed</h2>
+            <div class="accent-line"></div>
+
+            <p style="color:var(--text-muted);font-size:1.05rem;max-width:640px;line-height:1.8;margin:0.5rem 0 2.5rem;">
+                Nos convertimos en el departamento de asuntos regulatorios externo de su empresa — con la expertise, la metodología y los contactos necesarios para llevar su producto al mercado panameño.
+            </p>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;">
+                <div class="glass p-6 text-center">
+                    <div style="font-size:2rem;margin-bottom:0.75rem;">📁</div>
+                    <h5 style="font-weight:600;margin:0 0 0.4rem;">Compilación de Dossier</h5>
+                    <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;">Preparación completa del expediente técnico con todas las secciones requeridas según el tipo de producto y la vía de registro.</p>
+                </div>
+                <div class="glass p-6 text-center">
+                    <div style="font-size:2rem;margin-bottom:0.75rem;">🏥</div>
+                    <h5 style="font-weight:600;margin:0 0 0.4rem;">Trámite ante DNFD</h5>
+                    <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;">Presentación, seguimiento y gestión de observaciones ante la Dirección Nacional de Farmacia y Drogas del MINSA.</p>
+                </div>
+                <div class="glass p-6 text-center">
+                    <div style="font-size:2rem;margin-bottom:0.75rem;">🔬</div>
+                    <h5 style="font-weight:600;margin:0 0 0.4rem;">Coordinación IEA</h5>
+                    <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;">Gestión de cotizaciones, envío de muestras y comunicación con el Instituto Especializado de Análisis de la U. de Panamá.</p>
+                </div>
+                <div class="glass p-6 text-center">
+                    <div style="font-size:2rem;margin-bottom:0.75rem;">🏷️</div>
+                    <h5 style="font-weight:600;margin:0 0 0.4rem;">Revisión de Etiquetado</h5>
+                    <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;">Verificación de cumplimiento con RTCAs de etiquetado vigentes por tipo de producto y forma farmacéutica.</p>
+                </div>
+                <div class="glass p-6 text-center">
+                    <div style="font-size:2rem;margin-bottom:0.75rem;">🔄</div>
+                    <h5 style="font-weight:600;margin:0 0 0.4rem;">Modificaciones Post-Registro</h5>
+                    <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;">Gestión de variaciones, renovaciones y actualizaciones de registros sanitarios vigentes conforme a la normativa aplicable.</p>
+                </div>
+                <div class="glass p-6 text-center">
+                    <div style="font-size:2rem;margin-bottom:0.75rem;">📊</div>
+                    <h5 style="font-weight:600;margin:0 0 0.4rem;">Asesoría Regulatoria</h5>
+                    <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;">Consultas específicas sobre viabilidad regulatoria, clasificación de productos y estrategia de ingreso al mercado.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 5 — CATEGORÍAS DE PRODUCTO
+════════════════════════════════════════════ -->
+<div class="slide grain grid-bg">
+    <div class="orb orb-teal" style="width:400px;height:400px;top:-80px;left:50%;"></div>
+
+    <div class="content">
+        <div class="max-w-5xl mx-auto w-full">
+            <span class="tag">Alcance</span>
+            <h2 style="font-size:clamp(2rem,4vw,3.4rem);font-weight:400;margin:1rem 0 0.5rem;">Categorías de Producto que Gestionamos</h2>
+            <div class="accent-line"></div>
+            <p style="color:var(--text-muted);font-size:0.95rem;margin:0.5rem 0 2rem;">Experiencia acreditada en todas las categorías reconocidas por el Decreto Ejecutivo N.° 27 de 2024 y la Ley 419.</p>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+                <div class="glass p-5" style="display:flex;align-items:center;gap:0.8rem;">
+                    <span style="font-size:1.4rem;">💊</span>
+                    <div>
+                        <p style="font-weight:600;font-size:0.9rem;margin:0;">Síntesis Química</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">Medicamentos de origen sintético</p>
+                    </div>
+                </div>
+                <div class="glass p-5" style="display:flex;align-items:center;gap:0.8rem;">
+                    <span style="font-size:1.4rem;">🧬</span>
+                    <div>
+                        <p style="font-weight:600;font-size:0.9rem;margin:0;">Biológicos / Biotecnológicos</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">Incluye biosimilares</p>
+                    </div>
+                </div>
+                <div class="glass p-5" style="display:flex;align-items:center;gap:0.8rem;">
+                    <span style="font-size:1.4rem;">🌿</span>
+                    <div>
+                        <p style="font-weight:600;font-size:0.9rem;margin:0;">Productos Naturales</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">Fitofármacos · Res. 56/2023</p>
+                    </div>
+                </div>
+                <div class="glass p-5" style="display:flex;align-items:center;gap:0.8rem;">
+                    <span style="font-size:1.4rem;">🍃</span>
+                    <div>
+                        <p style="font-weight:600;font-size:0.9rem;margin:0;">Suplementos Dietéticos</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">Res. 550/2019</p>
+                    </div>
+                </div>
+                <div class="glass p-5" style="display:flex;align-items:center;gap:0.8rem;">
+                    <span style="font-size:1.4rem;">⚗️</span>
+                    <div>
+                        <p style="font-weight:600;font-size:0.9rem;margin:0;">Homeopáticos</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">Art. 125 Decreto 27</p>
+                    </div>
+                </div>
+                <div class="glass p-5" style="display:flex;align-items:center;gap:0.8rem;">
+                    <span style="font-size:1.4rem;">☢️</span>
+                    <div>
+                        <p style="font-weight:600;font-size:0.9rem;margin:0;">Radiofármacos</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">Art. 127 Decreto 27</p>
+                    </div>
+                </div>
+                <div class="glass p-5" style="display:flex;align-items:center;gap:0.8rem;">
+                    <span style="font-size:1.4rem;">🩹</span>
+                    <div>
+                        <p style="font-weight:600;font-size:0.9rem;margin:0;">Medicamentos Huérfanos</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">Procedimiento especial</p>
+                    </div>
+                </div>
+                <div class="glass p-5" style="display:flex;align-items:center;gap:0.8rem;">
+                    <span style="font-size:1.4rem;">💨</span>
+                    <div>
+                        <p style="font-weight:600;font-size:0.9rem;margin:0;">Gases Medicinales</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">Categoría especializada</p>
+                    </div>
+                </div>
+                <div class="glass p-5" style="display:flex;align-items:center;gap:0.8rem;">
+                    <span style="font-size:1.4rem;">⚡</span>
+                    <div>
+                        <p style="font-weight:600;font-size:0.9rem;margin:0;">Procedimiento Abreviado</p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">Dec. 29/2023 · Autoridades elite</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 6 — MERCADO OBJETIVO
+════════════════════════════════════════════ -->
+<div class="slide grain" style="background:var(--bg-mid);">
+    <div class="orb orb-gold" style="width:500px;height:500px;bottom:-150px;left:-100px;"></div>
+
+    <div class="content">
+        <div class="max-w-5xl mx-auto w-full">
+            <span class="tag">Mercado Objetivo</span>
+            <h2 style="font-size:clamp(2rem,4vw,3.4rem);font-weight:400;margin:1rem 0 0.5rem;">¿A Quién Servimos?</h2>
+            <div class="accent-line"></div>
+
+            <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:2.5rem;margin-top:1.5rem;align-items:start;">
+                <div style="display:flex;flex-direction:column;gap:1.2rem;">
+                    <div class="glass p-6" style="display:flex;gap:1rem;align-items:flex-start;">
+                        <div class="icon-box icon-teal">🏭</div>
+                        <div>
+                            <h5 style="font-weight:600;margin:0 0 0.3rem;">Laboratorios Fabricantes</h5>
+                            <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Nacionales e internacionales que buscan registrar sus productos en el mercado panameño sin desarrollar capacidad interna de asuntos regulatorios.</p>
+                        </div>
+                    </div>
+                    <div class="glass p-6" style="display:flex;gap:1rem;align-items:flex-start;">
+                        <div class="icon-box icon-gold">🚢</div>
+                        <div>
+                            <h5 style="font-weight:600;margin:0 0 0.3rem;">Importadores y Distribuidores</h5>
+                            <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Empresas que comercializan productos de salud importados y requieren mantener sus registros vigentes, actualizados y en cumplimiento normativo.</p>
+                        </div>
+                    </div>
+                    <div class="glass p-6" style="display:flex;gap:1rem;align-items:flex-start;">
+                        <div class="icon-box icon-blue">🌎</div>
+                        <div>
+                            <h5 style="font-weight:600;margin:0 0 0.3rem;">Empresas de la Región CA</h5>
+                            <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Operadores de Centroamérica que ven en Panamá un mercado estratégico de entrada, con un marco RTCA compartido que facilita la armonización regional.</p>
+                        </div>
+                    </div>
+                    <div class="glass p-6" style="display:flex;gap:1rem;align-items:flex-start;">
+                        <div class="icon-box" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);">🧴</div>
+                        <div>
+                            <h5 style="font-weight:600;margin:0 0 0.3rem;">Marcas de Salud y Bienestar</h5>
+                            <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Empresas de suplementos, nutracéuticos y productos naturales que necesitan navegar el régimen de la Resolución 550 y la normativa de fitofármacos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="glass p-8 text-center" style="margin-bottom:1.2rem;">
+                        <div class="stat-val" style="color:var(--primary);font-size:3.5rem;">+200</div>
+                        <p style="color:var(--text-muted);font-size:0.85rem;margin:0.5rem 0 0;">registros sanitarios activos en Panamá por año promedio</p>
+                    </div>
+                    <div class="glass p-6 text-center" style="border-color:rgba(197,160,40,0.2);">
+                        <div class="stat-val" style="color:var(--gold);">RTCA</div>
+                        <p style="color:var(--text-muted);font-size:0.85rem;margin:0.5rem 0 0;">Marco técnico armonizado para toda Centroamérica — ventaja competitiva para clientes regionales</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 7 — METODOLOGÍA / PROCESO
+════════════════════════════════════════════ -->
+<div class="slide grain grid-bg">
+    <div class="orb orb-teal" style="width:600px;height:600px;top:50%;right:-200px;transform:translateY(-50%);"></div>
+
+    <div class="content">
+        <div class="max-w-5xl mx-auto w-full">
+            <span class="tag">Proceso</span>
+            <h2 style="font-size:clamp(2rem,4vw,3.4rem);font-weight:400;margin:1rem 0 0.5rem;">Nuestra Metodología</h2>
+            <div class="accent-line"></div>
+
+            <div style="display:flex;flex-direction:column;gap:0;margin-top:2rem;position:relative;">
+                <!-- connector line -->
+                <div style="position:absolute;left:23px;top:48px;bottom:48px;width:2px;background:linear-gradient(180deg,var(--primary),transparent);opacity:0.3;"></div>
+
+                <div style="display:flex;gap:1.5rem;align-items:flex-start;margin-bottom:1.5rem;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;flex-shrink:0;z-index:1;">1</div>
+                    <div class="glass p-5" style="flex:1;">
+                        <h5 style="font-weight:600;margin:0 0 0.3rem;">Diagnóstico Regulatorio</h5>
+                        <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Evaluación inicial del producto: clasificación normativa, ruta de registro aplicable (ordinaria o abreviada), identificación de requisitos específicos y estimación de tiempos y costos.</p>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1.5rem;align-items:flex-start;margin-bottom:1.5rem;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:rgba(0,137,123,0.3);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;flex-shrink:0;z-index:1;">2</div>
+                    <div class="glass p-5" style="flex:1;">
+                        <h5 style="font-weight:600;margin:0 0 0.3rem;">Recopilación y Revisión Documental</h5>
+                        <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Levantamiento de toda la documentación técnica del cliente. Revisión crítica de fórmula, especificaciones, estudios de estabilidad, validaciones analíticas, etiquetas y prospectos.</p>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1.5rem;align-items:flex-start;margin-bottom:1.5rem;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:rgba(0,137,123,0.3);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;flex-shrink:0;z-index:1;">3</div>
+                    <div class="glass p-5" style="flex:1;">
+                        <h5 style="font-weight:600;margin:0 0 0.3rem;">Elaboración del Expediente</h5>
+                        <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Compilación del dossier completo conforme al checklist oficial de la DNFD, con correcta citación normativa, declaraciones juradas, poderes y documentación de apoyo.</p>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1.5rem;align-items:flex-start;margin-bottom:1.5rem;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:rgba(0,137,123,0.3);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;flex-shrink:0;z-index:1;">4</div>
+                    <div class="glass p-5" style="flex:1;">
+                        <h5 style="font-weight:600;margin:0 0 0.3rem;">Presentación y Seguimiento</h5>
+                        <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Presentación formal ante DNFD, coordinación con el IEA para análisis de calidad, monitoreo del expediente y atención proactiva de requerimientos de la autoridad.</p>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1.5rem;align-items:flex-start;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:rgba(197,160,40,0.2);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;flex-shrink:0;color:var(--gold);z-index:1;">✓</div>
+                    <div class="glass p-5" style="flex:1;border-color:rgba(197,160,40,0.25);">
+                        <h5 style="font-weight:600;margin:0 0 0.3rem;color:var(--gold);">Obtención del Registro Sanitario</h5>
+                        <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;margin:0;">Entrega al cliente del registro sanitario vigente, con cronograma de renovaciones futuras y plan de mantenimiento regulatorio.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 8 — MODELO DE SERVICIO / PRECIOS
+════════════════════════════════════════════ -->
+<div class="slide grain" style="background:var(--bg-mid);">
+    <div class="orb orb-teal" style="width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+
+    <div class="content">
+        <div class="max-w-5xl mx-auto w-full">
+            <span class="tag">Modelo de Servicio</span>
+            <h2 style="font-size:clamp(2rem,4vw,3.4rem);font-weight:400;margin:1rem 0 0.5rem;">Planes y Modalidades</h2>
+            <div class="accent-line"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-top:2rem;">
+
+                <!-- Plan Básico -->
+                <div class="glass plan-card" style="padding:2rem;display:flex;flex-direction:column;">
+                    <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin:0 0 0.5rem;">Esencial</p>
+                    <div style="font-family:'Fraunces',serif;font-size:2.2rem;font-weight:400;color:#fff;line-height:1;margin-bottom:0.3rem;">Consultoría</div>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 1.5rem;">Por hora / consulta puntual</p>
+                    <div class="h-divider" style="margin-bottom:1.5rem;"></div>
+                    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.75rem;flex:1;font-size:0.85rem;color:#b0cfc5;">
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--primary);">✓</span> Consultas regulatorias específicas</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--primary);">✓</span> Revisión de documentos puntuales</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--primary);">✓</span> Clasificación de productos</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--primary);">✓</span> Diagnóstico de viabilidad</li>
+                    </ul>
+                </div>
+
+                <!-- Plan Estrella -->
+                <div class="glass plan-card featured" style="padding:2rem;display:flex;flex-direction:column;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--primary);margin:0 0 0.5rem;">Recomendado</p>
+                        <span class="pill pill-green" style="margin-top:-0.5rem;">Más solicitado</span>
+                    </div>
+                    <div style="font-family:'Fraunces',serif;font-size:2.2rem;font-weight:400;color:#fff;line-height:1;margin-bottom:0.3rem;">Registro Completo</div>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 1.5rem;">Por expediente · Precio según categoría</p>
+                    <div class="h-divider" style="margin-bottom:1.5rem;"></div>
+                    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.75rem;flex:1;font-size:0.85rem;color:#E8F5E9;">
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--primary);">✓</span> Diagnóstico regulatorio inicial</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--primary);">✓</span> Compilación del dossier completo</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--primary);">✓</span> Gestión ante DNFD e IEA</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--primary);">✓</span> Revisión de etiquetado y prospecto</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--primary);">✓</span> Atención de subsanaciones</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--primary);">✓</span> Seguimiento hasta obtención</li>
+                    </ul>
+                    <button onclick="changeSlide(1)" style="margin-top:1.5rem;background:var(--primary);color:#fff;border:none;padding:0.85rem;border-radius:12px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;width:100%;font-size:0.9rem;">Solicitar Cotización</button>
+                </div>
+
+                <!-- Plan Corporativo -->
+                <div class="glass plan-card" style="padding:2rem;display:flex;flex-direction:column;">
+                    <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin:0 0 0.5rem;">Corporativo</p>
+                    <div style="font-family:'Fraunces',serif;font-size:2.2rem;font-weight:400;color:#fff;line-height:1;margin-bottom:0.3rem;">Gestión de Portafolio</div>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 1.5rem;">Retainer mensual · Múltiples productos</p>
+                    <div class="h-divider" style="margin-bottom:1.5rem;"></div>
+                    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.75rem;flex:1;font-size:0.85rem;color:#b0cfc5;">
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--gold);">✓</span> Todo lo del plan Registro Completo</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--gold);">✓</span> Prioridad en atención</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--gold);">✓</span> Gestión de modificaciones post-registro</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--gold);">✓</span> Monitoreo de vencimientos y renovaciones</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--gold);">✓</span> Reportes regulatorios periódicos</li>
+                        <li style="display:flex;gap:0.6rem;"><span style="color:var(--gold);">✓</span> Asesoría de cumplimiento continuo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 9 — DIFERENCIADORES
+════════════════════════════════════════════ -->
+<div class="slide grain grid-bg">
+    <div class="orb orb-teal" style="width:500px;height:500px;bottom:-100px;right:-100px;"></div>
+
+    <div class="content">
+        <div class="max-w-5xl mx-auto w-full">
+            <span class="tag">¿Por Qué Farmazed?</span>
+            <h2 style="font-size:clamp(2rem,4vw,3.4rem);font-weight:400;margin:1rem 0 0.5rem;">Nuestros Diferenciadores</h2>
+            <div class="accent-line"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;">
+                <div class="glass p-7" style="display:flex;gap:1.2rem;">
+                    <div class="num-label">01</div>
+                    <div>
+                        <h4 style="font-family:'Fraunces',serif;font-weight:400;font-size:1.2rem;margin:0 0 0.5rem;">Conocimiento Normativo Profundo</h4>
+                        <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.7;">Dominamos cada artículo del Decreto 27/2024, la Ley 419 y todos los instrumentos complementarios. No improvisamos — citamos con precisión la norma aplicable a cada producto.</p>
+                    </div>
+                </div>
+                <div class="glass p-7" style="display:flex;gap:1.2rem;">
+                    <div class="num-label">02</div>
+                    <div>
+                        <h4 style="font-family:'Fraunces',serif;font-weight:400;font-size:1.2rem;margin:0 0 0.5rem;">Expedientes Primera Presentación</h4>
+                        <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.7;">Nuestra metodología de revisión exhaustiva antes de la presentación minimiza las tasas de subsanación, ahorrando tiempo valioso al cliente y acelerando el acceso al mercado.</p>
+                    </div>
+                </div>
+                <div class="glass p-7" style="display:flex;gap:1.2rem;">
+                    <div class="num-label">03</div>
+                    <div>
+                        <h4 style="font-family:'Fraunces',serif;font-weight:400;font-size:1.2rem;margin:0 0 0.5rem;">Alcance Regional RTCA</h4>
+                        <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.7;">El marco técnico RTCA armonizado de Centroamérica nos permite servir a clientes de toda la región con estrategias de registro coordinadas y eficientes para múltiples mercados.</p>
+                    </div>
+                </div>
+                <div class="glass p-7" style="display:flex;gap:1.2rem;">
+                    <div class="num-label">04</div>
+                    <div>
+                        <h4 style="font-family:'Fraunces',serif;font-weight:400;font-size:1.2rem;margin:0 0 0.5rem;">Transparencia Total del Proceso</h4>
+                        <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.7;">El cliente tiene visibilidad completa del estado de su expediente en todo momento. Comunicación clara, reportes de avance y sin sorpresas en la gestión de costos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 10 — HOJA DE RUTA Y METAS
+════════════════════════════════════════════ -->
+<div class="slide grain" style="background:var(--bg-mid);">
+    <div class="orb orb-gold" style="width:500px;height:500px;top:-100px;right:-100px;"></div>
+
+    <div class="content">
+        <div class="max-w-5xl mx-auto w-full">
+            <span class="tag">Hoja de Ruta</span>
+            <h2 style="font-size:clamp(2rem,4vw,3.4rem);font-weight:400;margin:1rem 0 0.5rem;">Objetivos Estratégicos 2026</h2>
+            <div class="accent-line"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;margin-top:2rem;align-items:start;">
+                <div style="display:flex;flex-direction:column;gap:1.8rem;">
+                    <div style="display:flex;gap:1.2rem;">
+                        <div class="num-label" style="font-size:4rem;">01</div>
+                        <div>
+                            <h4 style="font-family:'Fraunces',serif;font-weight:600;font-size:1.1rem;margin:0 0 0.3rem;color:#fff;">Consolidar Cartera de Clientes</h4>
+                            <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.7;margin:0;">Alcanzar 15 clientes activos con relación de retainer en los primeros 12 meses, priorizando importadores con portafolios de 5+ productos.</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:1.2rem;">
+                        <div class="num-label" style="font-size:4rem;">02</div>
+                        <div>
+                            <h4 style="font-family:'Fraunces',serif;font-weight:600;font-size:1.1rem;margin:0 0 0.3rem;color:#fff;">Expansión Regional</h4>
+                            <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.7;margin:0;">Activar alianzas con consultoras regulatorias de Costa Rica y Guatemala para ofrecer servicios coordinados de registro bajo el marco RTCA armonizado.</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:1.2rem;">
+                        <div class="num-label" style="font-size:4rem;">03</div>
+                        <div>
+                            <h4 style="font-family:'Fraunces',serif;font-weight:600;font-size:1.1rem;margin:0 0 0.3rem;color:#fff;">Sistema de Gestión Digital</h4>
+                            <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.7;margin:0;">Implementar una plataforma de seguimiento de expedientes que brinde visibilidad en tiempo real al cliente sobre el estado de sus trámites activos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:1.2rem;">
+                    <div class="glass p-7" style="border-left:3px solid var(--primary);">
+                        <h4 style="font-family:'Fraunces',serif;font-weight:400;font-size:1rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--primary);margin:0 0 1rem;">Indicadores Clave 2026</h4>
+                        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.85rem;font-size:0.85rem;color:#b0cfc5;">
+                            <li style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>Registros tramitados/año</span>
+                                <span class="pill pill-green">≥ 40</span>
+                            </li>
+                            <li style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>Tasa de aprobación 1ª presentación</span>
+                                <span class="pill pill-green">≥ 85%</span>
+                            </li>
+                            <li style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>Tiempo promedio de resolución</span>
+                                <span class="pill pill-gold">< 6 meses</span>
+                            </li>
+                            <li style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>Satisfacción del cliente</span>
+                                <span class="pill pill-green">≥ 90%</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="glass p-6" style="border-color:rgba(197,160,40,0.2);">
+                        <h5 style="font-weight:600;color:var(--gold);margin:0 0 0.5rem;">Supuesto Crítico</h5>
+                        <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.7;margin:0;">El mercado panameño de asuntos regulatorios está altamente subservido — la mayoría de empresas gestionan sus trámites internamente sin expertise especializado, generando oportunidad directa para Farmazed.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 11 — CIERRE
+════════════════════════════════════════════ -->
+<div class="slide grain grid-bg">
+    <div class="orb orb-teal" style="width:700px;height:700px;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.6;"></div>
+
+    <div class="content" style="align-items:center;text-align:center;">
+        <div style="position:relative;z-index:10;max-width:700px;margin:0 auto;">
+            <div style="width:64px;height:64px;background:var(--primary);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 2rem;">
+                <span style="font-family:'Fraunces',serif;font-size:2rem;font-weight:700;color:#fff;">F</span>
+            </div>
+
+            <h2 style="font-family:'Fraunces',serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:300;font-style:italic;line-height:1.15;margin:0 0 1.5rem;color:#fff;">
+                "Su producto en el mercado,<br>
+                <span style="color:var(--primary);">con la norma de su lado."</span>
+            </h2>
+
+            <div class="accent-line" style="margin:0 auto 2rem;"></div>
+
+            <p style="color:var(--text-muted);font-size:1rem;line-height:1.8;margin:0 0 2.5rem;">
+                Farmazed transforma la complejidad del marco regulatorio panameño en un proceso claro, predecible y exitoso para su empresa.<br>
+                Conversemos sobre su portafolio de productos.
+            </p>
+
+            <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+                <a href="mailto:contacto@farmazed.com" style="background:var(--primary);color:#fff;text-decoration:none;padding:1rem 2rem;border-radius:14px;font-weight:600;font-size:0.9rem;display:inline-flex;align-items:center;gap:0.5rem;">
+                    📧 &nbsp;Contactar a Farmazed
+                </a>
+                <button onclick="changeSlide(-10)" style="background:transparent;color:var(--text-muted);border:1px solid var(--border);padding:1rem 2rem;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:0.9rem;cursor:pointer;">
+                    ↩ Reiniciar
+                </button>
+            </div>
+
+            <p style="margin:3rem 0 0;font-size:0.75rem;color:rgba(107,143,128,0.5);letter-spacing:0.1em;text-transform:uppercase;">
+                Farmazed · Asuntos Regulatorios Farmacéuticos · Panamá 2026
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ════ NAV BUTTONS ════ -->
+<button class="nav-btn" style="left:2rem;" onclick="changeSlide(-1)">← Anterior</button>
+<button class="nav-btn" style="right:2rem;" onclick="changeSlide(1)">Siguiente →</button>
+
+<script>
+    let cur = 0;
+    const total = 11;
+    const slides = document.querySelectorAll('.slide');
+    const progress = document.getElementById('progress');
+    const counter = document.getElementById('counter');
+
+    function changeSlide(dir) {
+        slides[cur].classList.remove('active');
+        cur = (cur + dir + total) % total;
+        slides[cur].classList.add('active');
+        progress.style.width = ((cur + 1) / total * 100) + '%';
+        counter.textContent = String(cur + 1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
+        if (e.key === 'ArrowLeft') changeSlide(-1);
+    });
+
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.changedTouches[0].screenX; });
+    document.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].screenX - tx;
+        if (dx < -50) changeSlide(1);
+        if (dx > 50) changeSlide(-1);
+    });
+</script>
+</body>
+</html>

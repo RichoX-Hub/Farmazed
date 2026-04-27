@@ -1,0 +1,25 @@
+# Farmazed Regulatory — Local Docker
+# =====================================
+# Contenedor standalone, independiente del stack principal de pb-website.
+#
+# Arrancar:
+#   cd "products/portal/demo/Proyecto Farmazetd Regulatory"
+#   docker compose up -d --build
+#
+# URLs:
+#   Landing:   http://localhost:8092/farmazed-web/
+#   Login:     http://localhost:8092/farmazed-web/login.html
+#   Nosotros:  http://localhost:8092/farmazed-web/nosotros.html
+#
+# Detener:
+#   docker compose down
+
+services:
+  farmazed-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: farmazed-web
+    ports:
+      - "8092:80"
+    restart: unless-stopped

@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard | Farmazed</title>
+<link rel="icon" type="image/png" href="src/images/favicon_Farzed.png">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600&family=Open+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:      #1572b0;
+  --primary-dark: #0d4f80;
+  --primary-cta:  #2190d7;
+  --green:        #27a060;
+  --amber:        #BA7517;
+  --red:          #c0392b;
+  --gray:         #888780;
+  --bg:           #f0f4f8;
+  --card:         #ffffff;
+  --border:       #dde3ea;
+  --text:         #1c2b3a;
+  --text-muted:   #6b7a8d;
+  --topbar-h:     58px;
+  --font-ui:      'Open Sans', sans-serif;
+  --font-head:    'Oswald', sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-ui); background: var(--bg); color: var(--text); font-size: 14px; }
+a { text-decoration: none; color: inherit; }
+
+/* ── TOPBAR ── */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h);
+  background: var(--primary-dark); display: flex; align-items: center;
+  justify-content: space-between; padding: 0 24px; z-index: 100;
+  border-bottom: 2px solid var(--primary);
+}
+.tb-brand { display: flex; align-items: center; gap: 12px; }
+.tb-brand img { height: 36px; width: auto; object-fit: contain; }
+.tb-brand-text { font-family: var(--font-head); line-height: 1.2; }
+.tb-brand-name { font-size: 1.15rem; font-weight: 400; color: #fff; letter-spacing: 0.04em; }
+.tb-brand-sub  { font-size: 0.58rem; color: rgba(255,255,255,0.55); letter-spacing: 0.12em; text-transform: uppercase; }
+.tb-right { display: flex; align-items: center; gap: 18px; }
+.tb-status { font-size: 0.68rem; color: rgba(255,255,255,0.5); letter-spacing: 0.06em; text-align: right; }
+.tb-status span { display: block; }
+.tb-user { display: flex; align-items: center; gap: 8px; }
+.tb-user-name { font-size: 0.82rem; color: #fff; font-weight: 600; }
+.tb-user-role { font-size: 0.68rem; color: rgba(255,255,255,0.6); }
+.tb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 2px rgba(39,160,96,0.3); }
+.tb-logout { font-size: 0.72rem; color: rgba(255,255,255,0.5); cursor: pointer; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 3px; transition: all 0.2s; }
+.tb-logout:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+
+/* ── MAIN ── */
+#main { margin-top: var(--topbar-h); padding: 24px; max-width: 1320px; margin-left: auto; margin-right: auto; }
+
+/* ── SECTION TITLES ── */
+.sec-title {
+  font-family: var(--font-head); font-size: 0.78rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+.sec-title .badge-norm {
+  font-family: var(--font-ui); font-size: 0.65rem; font-weight: 700;
+  background: rgba(186,117,23,0.12); color: var(--amber);
+  padding: 2px 7px; border-radius: 10px; letter-spacing: 0.04em;
+}
+
+/* ── METRICS ── */
+.metrics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 18px; }
+.metric-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+  padding: 20px 22px; position: relative; overflow: hidden;
+}
+.metric-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+}
+.metric-card.green::before { background: var(--green); }
+.metric-card.amber::before { background: var(--amber); }
+.metric-card.red::before   { background: var(--red); }
+.metric-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+.metric-value { font-family: var(--font-head); font-size: 2.2rem; font-weight: 400; color: var(--text); line-height: 1; margin-bottom: 6px; }
+.metric-delta { font-size: 0.72rem; }
+.metric-delta.green { color: var(--green); }
+.metric-delta.amber { color: var(--amber); }
+.metric-delta.red   { color: var(--red); }
+
+/* ── ALERT BANNER ── */
+#alert-container { margin-bottom: 18px; }
+.alert-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: #fffbf2; border-left: 3px solid var(--amber);
+  border-radius: 0 4px 4px 0; padding: 13px 16px; margin-bottom: 8px;
+  font-size: 0.82rem; line-height: 1.5;
+}
+.alert-icon { color: var(--amber); font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.alert-title { font-weight: 700; color: var(--amber); display: block; margin-bottom: 2px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.alert-close { margin-left: auto; cursor: pointer; color: var(--text-muted); font-size: 1rem; flex-shrink: 0; }
+.alert-close:hover { color: var(--text); }
+
+/* ── PIPELINE ── */
+#pipeline-section { margin-bottom: 18px; }
+.pipeline-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; }
+.pipeline-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 0;
+  padding: 16px 18px; cursor: pointer; transition: box-shadow 0.2s;
+  position: relative;
+}
+.pipeline-card:first-child { border-radius: 6px 0 0 6px; }
+.pipeline-card:last-child  { border-radius: 0 6px 6px 0; }
+.pipeline-card:not(:last-child)::after {
+  content: '›'; position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+  font-size: 1.4rem; color: var(--border); z-index: 1; font-weight: 300;
+}
+.pipeline-card.active { box-shadow: 0 0 0 2px var(--phase-color, var(--primary)) inset; }
+.pipeline-card:hover { background: #fafcff; }
+.pipeline-phase-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%; font-size: 0.65rem; font-weight: 700;
+  background: var(--phase-color, var(--gray)); color: #fff; margin-bottom: 8px;
+}
+.pipeline-icon { font-size: 1.4rem; margin-bottom: 6px; display: block; }
+.pipeline-name { font-family: var(--font-head); font-size: 0.82rem; font-weight: 400; color: var(--text); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+.pipeline-count { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; }
+.pipeline-count strong { font-size: 1.1rem; color: var(--text); font-family: var(--font-head); font-weight: 400; }
+.pipeline-bar-bg { height: 4px; background: #eee; border-radius: 2px; overflow: hidden; }
+.pipeline-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+
+/* ── TWO COL ── */
+.two-col { display: grid; grid-template-columns: 60fr 40fr; gap: 14px; margin-bottom: 18px; }
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
+
+/* Categories */
+.cat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.cat-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.cat-name { font-size: 0.78rem; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-bar-bg { flex: 2; height: 5px; background: #eef0f2; border-radius: 2px; overflow: hidden; }
+.cat-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+.cat-count { font-size: 0.72rem; color: var(--text-muted); width: 24px; text-align: right; flex-shrink: 0; }
+
+/* Activity feed */
+.activity-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; display: flex; gap: 10px; align-items: flex-start; }
+.activity-item:last-child { border-bottom: none; }
+.act-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.act-code { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; color: var(--primary); }
+.act-product { font-size: 0.78rem; color: var(--text); margin-bottom: 2px; }
+.act-meta { font-size: 0.68rem; color: var(--text-muted); }
+.act-badge {
+  display: inline-block; font-size: 0.62rem; font-weight: 700; padding: 1px 7px;
+  border-radius: 10px; margin-left: 4px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+/* ── QUICK MODULES ── */
+#modules-section { margin-bottom: 18px; }
+.modules-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.module-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+  padding: 18px 20px; display: flex; flex-direction: column; gap: 6px;
+  transition: box-shadow 0.2s, border-color 0.2s; cursor: pointer;
+}
+.module-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-color: var(--primary-cta); }
+.module-icon {
+  width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center;
+  justify-content: center; font-size: 1.1rem; margin-bottom: 4px;
+}
+.module-name { font-family: var(--font-head); font-size: 0.9rem; font-weight: 400; color: var(--text); text-transform: uppercase; letter-spacing: 0.03em; }
+.module-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; flex: 1; }
+.module-link { font-size: 0.72rem; font-weight: 700; color: var(--primary-cta); }
+
+/* ── TABLE SECTION ── */
+#table-section { margin-bottom: 24px; }
+.table-panel { background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.table-header { padding: 16px 20px 0; border-bottom: 1px solid var(--border); }
+.table-tabs { display: flex; gap: 0; }
+.tab-btn {
+  padding: 10px 16px; font-size: 0.75rem; font-weight: 600; border: none;
+  background: none; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent;
+  transition: color 0.2s; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap;
+}
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-btn:hover:not(.active) { color: var(--text); }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 820px; }
+thead tr { background: #f8fafb; }
+th {
+  padding: 10px 14px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td { padding: 11px 14px; font-size: 0.78rem; border-bottom: 1px solid #f3f4f5; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafcff; }
+.td-code { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; color: var(--primary); }
+.td-venc { font-size: 0.75rem; }
+.td-venc.warn { color: var(--red); font-weight: 700; }
+.pill {
+  display: inline-block; font-size: 0.62rem; font-weight: 700; padding: 2px 9px;
+  border-radius: 10px; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
+}
+.cat-badge {
+  display: inline-block; font-size: 0.65rem; font-weight: 600; padding: 2px 8px;
+  border-radius: 3px; white-space: nowrap;
+}
+.actions-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1.1rem; padding: 2px 6px; border-radius: 3px; position: relative; }
+.actions-btn:hover { background: #f0f0f0; color: var(--text); }
+.dropdown {
+  position: absolute; right: 0; top: 100%; background: var(--card);
+  border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  min-width: 190px; z-index: 50; display: none;
+}
+.dropdown.open { display: block; }
+.dropdown a {
+  display: block; padding: 9px 14px; font-size: 0.75rem; color: var(--text);
+  border-bottom: 1px solid #f5f5f5; transition: background 0.15s;
+}
+.dropdown a:last-child { border-bottom: none; }
+.dropdown a:hover { background: #f4f7fa; color: var(--primary); }
+.empty-row td { text-align: center; color: var(--text-muted); padding: 28px; font-size: 0.8rem; }
+
+/* ── FOOTER ── */
+#dash-footer {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+  padding: 20px 24px; margin-bottom: 32px;
+}
+.foot-title { font-family: var(--font-head); font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px; }
+.foot-list { list-style: none; }
+.foot-list li { font-size: 0.75rem; color: var(--text); padding: 3px 0; border-bottom: 1px solid #f5f5f5; font-family: var(--font-mono); }
+.foot-list li:last-child { border-bottom: none; }
+.foot-contact p { font-size: 0.78rem; color: var(--text); line-height: 1.7; }
+.foot-contact strong { color: var(--primary-dark); font-family: var(--font-head); font-size: 0.9rem; letter-spacing: 0.04em; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .metrics-grid { grid-template-columns: repeat(2,1fr); }
+  .pipeline-grid { grid-template-columns: 1fr; }
+  .pipeline-card { border-radius: 4px !important; margin-bottom: 4px; }
+  .pipeline-card::after { content: '↓'; right: auto; left: 50%; transform: translateX(-50%); top: auto; bottom: -14px; }
+  .two-col { grid-template-columns: 1fr; }
+  .modules-grid { grid-template-columns: repeat(2,1fr); }
+  #dash-footer { grid-template-columns: 1fr; }
+  .tb-status { display: none; }
+}
+@media (max-width: 600px) {
+  #main { padding: 14px; }
+  .metrics-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+  .modules-grid { grid-template-columns: 1fr 1fr; }
+  .tb-user-role { display: none; }
+  .table-tabs { overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="tb-brand">
+    <img src="src/images/Logo.png" alt="Farmazed">
+    <div class="tb-brand-text">
+      <div class="tb-brand-name">Farmazed</div>
+      <div class="tb-brand-sub">Asuntos Regulatorios · Panamá</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-status">
+      <span id="tb-username">—</span>
+      <span style="color:rgba(255,255,255,0.35)">DNFD / MINSA · Sistema activo</span>
+    </div>
+    <div class="tb-user">
+      <div>
+        <div class="tb-user-name" id="tb-user-name">—</div>
+        <div class="tb-user-role" id="tb-user-role">—</div>
+      </div>
+      <div class="tb-dot"></div>
+    </div>
+    <div class="tb-logout" onclick="logout()">Salir</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- METRICS -->
+  <div class="metrics-grid" id="metrics-grid"></div>
+
+  <!-- ALERTS -->
+  <div id="alert-container"></div>
+
+  <!-- PIPELINE -->
+  <div id="pipeline-section">
+    <div class="sec-title">Pipeline de Trámite</div>
+    <div class="pipeline-grid" id="pipeline-grid"></div>
+  </div>
+
+  <!-- TWO COL -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="sec-title">Registros por Categoría <span class="badge-norm">D.E. 27/2024</span></div>
+      <div id="cat-list"></div>
+    </div>
+    <div class="panel">
+      <div class="sec-title">Actividad Reciente</div>
+      <div id="activity-list"></div>
+    </div>
+  </div>
+
+  <!-- MODULES -->
+  <div id="modules-section">
+    <div class="sec-title">Acceso Rápido</div>
+    <div class="modules-grid" id="modules-grid"></div>
+  </div>
+
+  <!-- TABLE -->
+  <div id="table-section">
+    <div class="sec-title">Expedientes Activos</div>
+    <div class="table-panel">
+      <div class="table-header">
+        <div class="table-tabs" id="table-tabs"></div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Fase</th>
+              <th>Cliente</th>
+              <th>Normativa</th>
+              <th>Vencimiento</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="exp-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div id="dash-footer">
+    <div>
+      <div class="foot-title">Marco Normativo Vigente</div>
+      <ul class="foot-list" id="foot-normas"></ul>
+    </div>
+    <div class="foot-contact">
+      <div class="foot-title">Contacto</div>
+      <div id="foot-contact"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+/* ══════════════════════════════════════
+   AUTH
+══════════════════════════════════════ */
+(function() {
+  if (!sessionStorage.getItem('fz_user')) {
+    window.location.href = 'login.html';
+  }
+  var name = sessionStorage.getItem('fz_user') || '—';
+  var role = sessionStorage.getItem('fz_role') || '—';
+  document.getElementById('tb-username').textContent = name + ' — ' + role;
+  document.getElementById('tb-user-name').textContent = name;
+  document.getElementById('tb-user-role').textContent = role;
+})();
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+}
+
+/* ══════════════════════════════════════
+   DATA
+══════════════════════════════════════ */
+var D = {
+  metrics: [
+    { label: 'Registros activos',  value: 142, delta: '+8 este trimestre',      tone: 'green' },
+    { label: 'En trámite (DNFD)',  value: 27,  delta: '5 con observaciones',    tone: 'amber' },
+    { label: 'Vencen en 90 días',  value: 11,  delta: 'Acción requerida',       tone: 'red'   },
+    { label: 'Clientes activos',   value: 34,  delta: 'Centroamérica + Panamá', tone: 'green' }
+  ],
+  alerts: [
+    'Decreto Ejecutivo N.° 27 de 2024 en vigencia — 14 expedientes requieren adecuación de documentación técnica antes del 30 de junio de 2025.',
+    'Resolución N.° 56 de 2024 (RTCA 11.03.64:19) — 6 expedientes de biológicos pendientes de adecuación al nuevo formato de dossier.'
+  ],
+  pipeline: [
+    { id: 'diagnostico', num: 1, name: 'Diagnóstico Regulatorio', icon: '🔍', count: 18, progress: 65, color: '#888780' },
+    { id: 'revision',    num: 2, name: 'Revisión Documental',     icon: '📋', count: 34, progress: 80, color: '#BA7517' },
+    { id: 'elaboracion', num: 3, name: 'Elaboración Expediente',  icon: '📁', count: 52, progress: 45, color: '#1572b0' },
+    { id: 'obtencion',   num: 4, name: 'Obtención del Registro',  icon: '✅', count: 38, progress: 90, color: '#27a060' }
+  ],
+  categories: [
+    { name: 'Síntesis química',              count: 52, color: '#1572b0' },
+    { name: 'Naturales / fitofármacos',      count: 33, color: '#27a060' },
+    { name: 'Biológicos y biotecnológicos',  count: 20, color: '#0d4f80' },
+    { name: 'Suplementos vitamínicos',       count: 25, color: '#BA7517' },
+    { name: 'Medicamentos homeopáticos',     count: 12, color: '#888780' },
+    { name: 'Gases medicinales',             count:  3, color: '#aab0b8' },
+    { name: 'Radiofármacos',                 count:  2, color: '#c0c5cc' },
+    { name: 'Medicamentos huérfanos',        count:  1, color: '#d0d5da' }
+  ],
+  activity: [
+    { code: 'FZ-0234', product: 'Fitofármaco Vita-K',    status: 'Aprobado',          date: 'Hoy',    ref: 'Res. 56/2024',  color: '#27a060' },
+    { code: 'FZ-0198', product: 'Biológico Hemasyn',      status: 'Con observaciones', date: 'Ayer',   ref: 'D.E. 27/2024',  color: '#BA7517' },
+    { code: 'FZ-0211', product: 'Suplemento OmegaPlus',  status: 'En revisión',       date: '22 abr', ref: 'Res. 550/2019', color: '#2190d7' },
+    { code: 'FZ-0189', product: 'Homeopático ArtroZen',  status: 'Vencido',           date: '20 abr', ref: 'D.E. 27/2024',  color: '#c0392b' }
+  ],
+  modules: [
+    { icon: '📄', color: '#e8f0f8', iconColor: '#1572b0', name: 'Biblioteca de Matrices',        desc: 'Requisitos por categoría con fundamento normativo.' },
+    { icon: '🗂',  color: '#e8f0f8', iconColor: '#1572b0', name: 'Gestión de Expedientes',        desc: 'Seguimiento de trámites ante DNFD/MINSA.' },
+    { icon: '⏱',  color: '#fef8ec', iconColor: '#BA7517', name: 'Calculadora de Vencimientos',   desc: 'Fechas críticas y alertas de renovación.' },
+    { icon: '⚖',  color: '#edf7f1', iconColor: '#27a060', name: 'Proc. Abreviado vs Regular',    desc: 'Tabla comparativa D.E. 29/2023.' },
+    { icon: '👥',  color: '#edf7f1', iconColor: '#27a060', name: 'Clientes y Productos',          desc: 'Cartera de clientes y registros asociados.' },
+    { icon: '📚',  color: '#e8ecf5', iconColor: '#0d4f80', name: 'Normativa Vigente',             desc: 'Marco legal actualizado al D.E. 27/2024.' }
+  ],
+  expedientes: [
+    { code: 'FZ-0234', product: 'Fitofármaco Vita-K',   cat: 'Naturales / fito', catC: '#27a060', fase: 'obtencion',   cliente: 'Laboratorios Bios S.A.',  norm: 'Res. 56/2024',  venc: '2025-08-10', status: 'Aprobado'          },
+    { code: 'FZ-0198', product: 'Biológico Hemasyn',     cat: 'Biológicos',       catC: '#0d4f80', fase: 'revision',    cliente: 'PharmaCentral Inc.',      norm: 'D.E. 27/2024',  venc: '2025-06-01', status: 'Con observaciones' },
+    { code: 'FZ-0211', product: 'Suplemento OmegaPlus', cat: 'Suplementos',      catC: '#BA7517', fase: 'elaboracion', cliente: 'NutriVida Corp.',         norm: 'Res. 550/2019', venc: '2025-05-15', status: 'En trámite'        },
+    { code: 'FZ-0187', product: 'Cosm. Dermaflex',      cat: 'Cosméticos',       catC: '#2190d7', fase: 'diagnostico', cliente: 'DermaSkin Ltda.',         norm: 'D.E. 27/2024',  venc: '2025-07-22', status: 'En trámite'        },
+    { code: 'FZ-0225', product: 'Cloraflex 500mg',      cat: 'Síntesis química', catC: '#1572b0', fase: 'elaboracion', cliente: 'MedGroup Panamá',         norm: 'D.E. 29/2023',  venc: '2025-09-30', status: 'En trámite'        },
+    { code: 'FZ-0201', product: 'Gas Medicinal O2-Pro', cat: 'Gases',            catC: '#aab0b8', fase: 'revision',    cliente: 'GasClinic S.A.',          norm: 'Res. 126/2021', venc: '2025-04-20', status: 'Por renovar'       },
+    { code: 'FZ-0178', product: 'ArtroZen Gotas',       cat: 'Homeopáticos',     catC: '#888780', fase: 'obtencion',   cliente: 'HoloMed Corp.',           norm: 'D.E. 27/2024',  venc: '2025-12-01', status: 'Aprobado'          },
+    { code: 'FZ-0219', product: 'Radiofármaco Tc-99',   cat: 'Radiofármacos',    catC: '#c0c5cc', fase: 'diagnostico', cliente: 'Nuclear Med S.A.',        norm: 'Ley 419/2024',  venc: '2025-05-08', status: 'Con observaciones' }
+  ],
+  normas: [
+    'D.E. N.° 27 de 2024',
+    'Ley N.° 419 de 2024',
+    'Res. N.° 126 de 2021  (RTCA 11.03.59:18)',
+    'Res. N.° 56 de 2024   (RTCA 11.03.64:19)',
+    'Res. N.° 550 de 2019',
+    'D.E. N.° 29 de 2023'
+  ],
+  contact: {
+    name: 'Farmazed',
+    address: 'PH Cosmopolitan Towers, Pueblo Nuevo, Panamá',
+    person: 'Lic. Zelky Marín',
+    title: 'Farmacéutica Regente'
+  }
+};
+
+/* ══════════════════════════════════════
+   HELPERS
+══════════════════════════════════════ */
+var phaseMap = {
+  diagnostico: { label: 'Diagnóstico', color: '#888780' },
+  revision:    { label: 'Revisión',    color: '#BA7517' },
+  elaboracion: { label: 'Elaboración', color: '#1572b0' },
+  obtencion:   { label: 'Obtención',   color: '#27a060' }
+};
+var statusColor = {
+  'Aprobado':          '#27a060',
+  'En trámite':        '#1572b0',
+  'Con observaciones': '#BA7517',
+  'Por renovar':       '#c0392b',
+  'En revisión':       '#2190d7',
+  'Vencido':           '#c0392b'
+};
+
+function daysUntil(dateStr) {
+  var d = new Date(dateStr), now = new Date();
+  now.setHours(0,0,0,0);
+  return Math.ceil((d - now) / 86400000);
+}
+
+function fmtDate(dateStr) {
+  var p = dateStr.split('-');
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+
+/* ══════════════════════════════════════
+   RENDER METRICS
+══════════════════════════════════════ */
+var g = document.getElementById('metrics-grid');
+D.metrics.forEach(function(m) {
+  var c = document.createElement('div');
+  c.className = 'metric-card ' + m.tone;
+  c.innerHTML =
+    '<div class="metric-label">' + m.label + '</div>' +
+    '<div class="metric-value">' + m.value + '</div>' +
+    '<div class="metric-delta ' + m.tone + '">' + m.delta + '</div>';
+  g.appendChild(c);
+});
+
+/* ══════════════════════════════════════
+   RENDER ALERTS
+══════════════════════════════════════ */
+var ac = document.getElementById('alert-container');
+D.alerts.forEach(function(txt) {
+  var el = document.createElement('div');
+  el.className = 'alert-item';
+  el.innerHTML =
+    '<span class="alert-icon">⚠</span>' +
+    '<div><span class="alert-title">Alerta Normativa</span>' + txt + '</div>' +
+    '<span class="alert-close" onclick="this.parentElement.remove()">✕</span>';
+  ac.appendChild(el);
+});
+
+/* ══════════════════════════════════════
+   RENDER PIPELINE
+══════════════════════════════════════ */
+var activePhase = null;
+var pg = document.getElementById('pipeline-grid');
+
+function renderPipeline() {
+  pg.innerHTML = '';
+  D.pipeline.forEach(function(p) {
+    var card = document.createElement('div');
+    card.className = 'pipeline-card' + (activePhase === p.id ? ' active' : '');
+    card.style.setProperty('--phase-color', p.color);
+    card.innerHTML =
+      '<div class="pipeline-phase-num" style="background:' + p.color + '">' + p.num + '</div>' +
+      '<span class="pipeline-icon">' + p.icon + '</span>' +
+      '<div class="pipeline-name">' + p.name + '</div>' +
+      '<div class="pipeline-count"><strong>' + p.count + '</strong> expedientes</div>' +
+      '<div class="pipeline-bar-bg"><div class="pipeline-bar-fill" style="width:' + p.progress + '%;background:' + p.color + '"></div></div>';
+    card.addEventListener('click', function() {
+      activePhase = (activePhase === p.id) ? null : p.id;
+      renderPipeline();
+      renderTable();
+    });
+    pg.appendChild(card);
+  });
+}
+renderPipeline();
+
+/* ══════════════════════════════════════
+   RENDER CATEGORIES
+══════════════════════════════════════ */
+var maxCat = Math.max.apply(null, D.categories.map(function(c){ return c.count; }));
+var cl = document.getElementById('cat-list');
+D.categories.forEach(function(c) {
+  var pct = Math.round(c.count / maxCat * 100);
+  var row = document.createElement('div');
+  row.className = 'cat-row';
+  row.innerHTML =
+    '<div class="cat-dot" style="background:' + c.color + '"></div>' +
+    '<div class="cat-name">' + c.name + '</div>' +
+    '<div class="cat-bar-bg"><div class="cat-bar-fill" style="width:0%;background:' + c.color + '" data-w="' + pct + '"></div></div>' +
+    '<div class="cat-count">' + c.count + '</div>';
+  cl.appendChild(row);
+});
+setTimeout(function() {
+  document.querySelectorAll('.cat-bar-fill').forEach(function(b) {
+    b.style.width = b.dataset.w + '%';
+  });
+}, 100);
+
+/* ══════════════════════════════════════
+   RENDER ACTIVITY
+══════════════════════════════════════ */
+var al = document.getElementById('activity-list');
+D.activity.forEach(function(a) {
+  var el = document.createElement('div');
+  el.className = 'activity-item';
+  el.innerHTML =
+    '<div class="act-dot" style="background:' + a.color + '"></div>' +
+    '<div>' +
+      '<div><span class="act-code">' + a.code + '</span> <span class="act-badge" style="background:' + a.color + '22;color:' + a.color + '">' + a.status + '</span></div>' +
+      '<div class="act-product">' + a.product + '</div>' +
+      '<div class="act-meta">' + a.date + ' · ' + a.ref + '</div>' +
+    '</div>';
+  al.appendChild(el);
+});
+
+/* ══════════════════════════════════════
+   RENDER MODULES
+══════════════════════════════════════ */
+var mg = document.getElementById('modules-grid');
+D.modules.forEach(function(m) {
+  var c = document.createElement('div');
+  c.className = 'module-card';
+  c.innerHTML =
+    '<div class="module-icon" style="background:' + m.color + ';color:' + m.iconColor + '">' + m.icon + '</div>' +
+    '<div class="module-name">' + m.name + '</div>' +
+    '<div class="module-desc">' + m.desc + '</div>' +
+    '<div class="module-link">Abrir →</div>';
+  mg.appendChild(c);
+});
+
+/* ══════════════════════════════════════
+   RENDER TABLE
+══════════════════════════════════════ */
+var activeTab = 'todos';
+var tabDefs = [
+  { id: 'todos',        label: 'Todos'            },
+  { id: 'tramite',      label: 'En trámite'       },
+  { id: 'observaciones',label: 'Con observaciones'},
+  { id: 'renovar',      label: 'Por renovar'      },
+  { id: 'aprobados',    label: 'Aprobados'        }
+];
+var tabStatus = {
+  tramite:       'En trámite',
+  observaciones: 'Con observaciones',
+  renovar:       'Por renovar',
+  aprobados:     'Aprobado'
+};
+
+var tabsEl = document.getElementById('table-tabs');
+tabDefs.forEach(function(t) {
+  var btn = document.createElement('button');
+  btn.className = 'tab-btn' + (t.id === activeTab ? ' active' : '');
+  btn.textContent = t.label;
+  btn.dataset.id = t.id;
+  btn.addEventListener('click', function() {
+    activeTab = t.id;
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderTable();
+  });
+  tabsEl.appendChild(btn);
+});
+
+function renderTable() {
+  var tbody = document.getElementById('exp-tbody');
+  tbody.innerHTML = '';
+  var rows = D.expedientes.filter(function(e) {
+    var tabOk = activeTab === 'todos' || (tabStatus[activeTab] && e.status === tabStatus[activeTab]);
+    var phaseOk = !activePhase || e.fase === activePhase;
+    return tabOk && phaseOk;
+  });
+  if (!rows.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No hay expedientes para el filtro seleccionado.</td></tr>';
+    return;
+  }
+  rows.forEach(function(e, i) {
+    var days = daysUntil(e.venc);
+    var vencClass = days <= 90 ? 'td-venc warn' : 'td-venc';
+    var vencIcon = days <= 90 ? ' ⚠' : '';
+    var ph = phaseMap[e.fase];
+    var sc = statusColor[e.status] || '#888';
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><span class="td-code">' + e.code + '</span></td>' +
+      '<td>' + e.product + '</td>' +
+      '<td><span class="cat-badge" style="background:' + e.catC + '22;color:' + e.catC + '">' + e.cat + '</span></td>' +
+      '<td><span class="pill" style="background:' + ph.color + '22;color:' + ph.color + '">' + ph.label + '</span></td>' +
+      '<td>' + e.cliente + '</td>' +
+      '<td style="font-family:var(--font-mono);font-size:0.72rem">' + e.norm + '</td>' +
+      '<td class="' + vencClass + '">' + fmtDate(e.venc) + vencIcon + '</td>' +
+      '<td><span class="pill" style="background:' + sc + '22;color:' + sc + '">' + e.status + '</span></td>' +
+      '<td style="position:relative">' +
+        '<button class="actions-btn" onclick="toggleMenu(this)">⋯</button>' +
+        '<div class="dropdown">' +
+          '<a href="#">Ver expediente</a>' +
+          '<a href="#">Descargar matriz</a>' +
+          '<a href="#">Registrar observación</a>' +
+          '<a href="#">Iniciar renovación</a>' +
+        '</div>' +
+      '</td>';
+    tbody.appendChild(tr);
+  });
+}
+renderTable();
+
+function toggleMenu(btn) {
+  var dd = btn.nextElementSibling;
+  var isOpen = dd.classList.contains('open');
+  document.querySelectorAll('.dropdown.open').forEach(function(d){ d.classList.remove('open'); });
+  if (!isOpen) dd.classList.add('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.classList.contains('actions-btn')) {
+    document.querySelectorAll('.dropdown.open').forEach(function(d){ d.classList.remove('open'); });
+  }
+});
+
+/* ══════════════════════════════════════
+   RENDER FOOTER
+══════════════════════════════════════ */
+var fn = document.getElementById('foot-normas');
+D.normas.forEach(function(n) {
+  var li = document.createElement('li');
+  li.textContent = n;
+  fn.appendChild(li);
+});
+var fc = D.contact;
+document.getElementById('foot-contact').innerHTML =
+  '<p><strong>' + fc.name + '</strong></p>' +
+  '<p>' + fc.address + '</p>' +
+  '<p>' + fc.person + '<br>' + fc.title + '</p>';
+
+</script>
+</body>
+</html>

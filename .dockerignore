@@ -1,0 +1,16 @@
+# Exclude heavy project files not needed in the container
+*.pdf
+*.psd
+*.docx
+*.doc
+*.txt
+*.png
+*.jpg
+*.jpeg
+*.psd
+
+# Keep farmazed-web and References (both needed)
+!farmazed-web/
+!farmazed-web/**
+!References/
+!References/**

@@ -1,0 +1,597 @@
+/* ═══════════════════════════════════════════════
+   FARMAZED — Overrides and extensions on WeCare base
+   WeCare files remain untouched and linked via ../References/
+═══════════════════════════════════════════════ */
+
+/* ── Hero slide (CSS-based, no slider image yet) ── */
+.fz-hero-slide {
+    width: 100%;
+    height: 811px;
+    background: linear-gradient(160deg, #0d4f80 0%, #2190d7 55%, #1572b0 100%);
+    position: relative;
+    overflow: hidden;
+}
+.fz-hero-slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+}
+.fz-hero-slide::after {
+    content: 'Registro Sanitario · DNFD · MINSA Panamá';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Oswald', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.18);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* ── FlexSlider reset + hero image sizing ── */
+.flexslider { margin: 0; border: none; box-shadow: none; border-radius: 0; }
+.flexslider .slides { margin: 0; padding: 0; }
+.flexslider .slides li { list-style: none; }
+
+/* Hero images: full-width cover at 811px */
+.fz-slide-bg {
+    display: block;
+    width: 100%;
+    height: 811px;
+    object-fit: cover;
+    object-position: center 50%;
+}
+
+/* Force direction nav to show even with a single slide,
+   and restore WeCare's opacity-on-hover behaviour */
+.flexslider .flex-direction-nav { display: block !important; }
+.flexslider .flex-direction-nav a {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+}
+.flexslider:hover .flex-direction-nav a { opacity: 0.8; }
+
+/* ── Logo ── */
+.fz-logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    text-decoration: none;
+}
+.fz-logo-img {
+    height: auto;
+    width: auto;
+    max-height: 88px;
+    max-width: 180px;
+    display: block;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+.fz-logo-text {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.45rem;
+    font-weight: 400;
+    color: #3f3f3f;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+}
+.fz-logo-text small {
+    display: block;
+    font-size: 0.58rem;
+    color: #999;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+}
+
+/* ── Subheader phone: remove background image, keep layout ── */
+.subheader .phone { background-image: none; padding-left: 0; }
+
+/* Mobile logo: hidden on desktop */
+.fz-mobile-logo { display: none; }
+
+/* ── Dropdown: eliminate gap between nav bar and sub-menu ── */
+.sf-menu .sub-menu { padding-top: 0 !important; }
+
+/* ── Disable original WeCare book-form overlay (we replaced it) ── */
+.book-form { display: none !important; }
+
+/* ── Wrapper top margin reset (consult bar now sits between slider and wrapper) ── */
+.wrapper { margin-top: 0; }
+
+/* ── Inner pages: push banner below header ── */
+.banner { margin-top: 30px; }
+
+/* ── Guarantee #header contains floated children ── */
+#header::after { content: ''; display: table; clear: both; }
+
+/* ════════════════════════════════════════
+   CONSULTATION BAR (below slider)
+════════════════════════════════════════ */
+.fz-consult-bar {
+    background: #1e6fa8;
+    padding: 28px 30px;
+}
+.fz-consult-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.fz-consult-bar h4 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.fz-consult-bar h4 img {
+    width: 20px;
+    height: 20px;
+    opacity: 0.9;
+}
+.fz-consult-inputs {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+.fz-consult-inputs input {
+    flex: 1 1 180px;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 2px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.82rem;
+    color: #333;
+    background: #fff;
+    outline: none;
+}
+.fz-consult-inputs input:focus {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+}
+#submit_contact2 {
+    padding: 11px 28px;
+    background: #2190d7;
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#submit_contact2:hover { background: #0d4f80; }
+#msg2 { color: #fff; font-size: 0.8rem; margin-top: 8px; }
+
+@media (max-width: 768px) {
+    .fz-consult-inputs { flex-direction: column; }
+    #submit_contact2 { width: 100%; }
+}
+
+
+/* ════════════════════════════════════════
+   QUIÉNES SOMOS (#nosotros)
+════════════════════════════════════════ */
+.fz-about {
+    padding: 50px 30px 40px;
+    background: #fff;
+}
+.fz-about > h4 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #333;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.fz-about-cols {
+    display: flex;
+    gap: 40px;
+    margin-top: 30px;
+}
+.fz-about-col {
+    flex: 1;
+}
+.fz-about-col h5 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #2190d7;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 12px;
+}
+.fz-about-col p {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.875rem;
+    color: #555;
+    line-height: 1.75;
+    margin-bottom: 14px;
+}
+.fz-about-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.fz-about-list li {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.875rem;
+    color: #555;
+    line-height: 1.6;
+    padding: 6px 0 6px 18px;
+    position: relative;
+    border-bottom: 1px solid #f0f0f0;
+}
+.fz-about-list li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: #2190d7;
+    font-size: 1rem;
+}
+
+
+/* ════════════════════════════════════════
+   CATEGORÍAS (#categorias)
+════════════════════════════════════════ */
+.fz-cat-header {
+    padding: 44px 30px 28px;
+    background: #fff;
+}
+.fz-cat-header h4 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #333;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* 5-per-row flex grid for categorías */
+#categorias .features.dark {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px 20px 30px;
+}
+#categorias .features-items {
+    float: none !important;
+    width: 20% !important;
+    margin-left: 0 !important;
+    padding: 20px 16px;
+    box-sizing: border-box;
+}
+
+
+/* ════════════════════════════════════════
+   PLANES Y PRECIOS (#planes)
+════════════════════════════════════════ */
+.fz-planes {
+    padding: 50px 30px 60px;
+    background: #f7f9fb;
+}
+.fz-planes > h4 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #333;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.fz-planes-sub {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.875rem;
+    color: #777;
+    margin: 18px 0 36px;
+}
+.fz-planes-grid {
+    display: flex;
+    gap: 24px;
+    align-items: stretch;
+}
+.fz-plan {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e4e9ee;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.fz-plan-featured {
+    border-color: #2190d7;
+    box-shadow: 0 4px 24px rgba(33, 144, 215, 0.15);
+}
+.fz-plan-badge {
+    background: #2190d7;
+    color: #fff;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 5px 12px;
+}
+.fz-plan-header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.fz-plan-header h5 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 8px;
+}
+.fz-plan-price {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.85rem;
+    color: #888;
+}
+.fz-plan-price strong {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #2190d7;
+    font-family: 'Oswald', sans-serif;
+}
+.fz-plan-features {
+    list-style: none;
+    margin: 0;
+    padding: 20px 24px;
+    flex: 1;
+}
+.fz-plan-features li {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.82rem;
+    color: #555;
+    padding: 7px 0 7px 20px;
+    border-bottom: 1px solid #f5f5f5;
+    position: relative;
+}
+.fz-plan-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #2190d7;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.fz-plan-na {
+    color: #ccc !important;
+}
+.fz-plan-na::before {
+    content: '–' !important;
+    color: #ddd !important;
+}
+.fz-plan-btn {
+    display: block;
+    margin: 0 24px 24px;
+    padding: 12px;
+    background: #2190d7;
+    color: #fff;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+.fz-plan-btn:hover {
+    background: #1572b0;
+    color: #fff;
+    text-decoration: none;
+}
+.fz-plan-featured .fz-plan-btn {
+    background: #2190d7;
+}
+
+/* ── Carousel image nudge: About2 shifted up 50px inside the card ── */
+.carousel img[src="src/images/About2.png"] {
+    margin-top: -130px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .fz-about-cols { flex-direction: column; gap: 24px; }
+    .fz-planes-grid { flex-direction: column; }
+    .fz-hero-slide { height: 400px; }
+    .fz-hero-slide::after { font-size: 1.2rem; white-space: normal; text-align: center; width: 90%; }
+
+    /* Slider: half height, right-anchored crop */
+    .fz-slide-bg {
+        height: 406px;
+        object-position: right center;
+    }
+
+    /* White chevron arrows — always visible on mobile */
+    .flexslider .flex-direction-nav a {
+        opacity: 1 !important;
+        background: rgba(255,255,255,0.18) !important;
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.5);
+        text-indent: -9999px;
+        overflow: visible;
+        bottom: auto !important;
+        top: 50% !important;
+        margin-top: -20px !important;
+    }
+    .flexslider .flex-direction-nav .flex-prev { left: 10px !important; }
+    .flexslider .flex-direction-nav .flex-next { right: 10px !important; }
+
+    .flexslider .flex-direction-nav a::before {
+        content: '';
+        display: block;
+        width: 10px;
+        height: 10px;
+        border-top: 2.5px solid #fff;
+        border-right: 2.5px solid #fff;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+    }
+    .flexslider .flex-direction-nav .flex-prev::before {
+        transform: translate(-30%, -50%) rotate(-135deg);
+    }
+    .flexslider .flex-direction-nav .flex-next::before {
+        transform: translate(-70%, -50%) rotate(45deg);
+    }
+
+    /* Hide desktop logo, keep nav row */
+    .row2 .logo { display: none !important; }
+    .row2 .upper-header { width: 100% !important; padding: 0 !important; }
+
+    /* Nav: 2-row flex wrap */
+    #nav { float: none !important; width: 100% !important; }
+    #navlist.sf-menu {
+        display: flex !important;
+        flex-wrap: wrap;
+        width: 100%;
+        margin: 0;
+        padding: 4px 6px;
+        background: #fff;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    #navlist.sf-menu > li {
+        float: none !important;
+        flex: 0 0 auto;
+    }
+    #navlist.sf-menu > li > a {
+        font-size: 0.72rem;
+        padding: 6px 9px !important;
+        white-space: nowrap;
+        display: block;
+    }
+    /* Submenus: static position, full width, hidden until .open */
+    #navlist.sf-menu > li > .sub-menu {
+        display: none !important;
+        position: static !important;
+        width: 100% !important;
+        background: #f4f4f4;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    #navlist.sf-menu > li.fz-open > .sub-menu {
+        display: block !important;
+    }
+    #navlist.sf-menu > li > .sub-menu li {
+        float: none !important;
+        width: 100%;
+    }
+    #navlist.sf-menu > li > .sub-menu li a {
+        font-size: 0.7rem !important;
+        padding: 5px 14px !important;
+        display: block;
+        color: #555 !important;
+        border-bottom: 1px solid #e0e0e0;
+        white-space: normal;
+    }
+    /* Arrow indicator on parent items with submenus */
+    #navlist.sf-menu > li.fz-has-sub > a::after {
+        content: ' ▾';
+        font-size: 0.55rem;
+        opacity: 0.7;
+    }
+    #navlist.sf-menu > li.fz-has-sub.fz-open > a::after {
+        content: ' ▴';
+    }
+
+    /* Show mobile logo in subheader */
+    .fz-mobile-logo {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        flex-shrink: 0;
+    }
+    .fz-mobile-logo img {
+        height: 30px;
+        width: auto;
+    }
+    .fz-mobile-logo span {
+        font-family: 'Oswald', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 400;
+        color: #fff;
+        letter-spacing: 0.04em;
+    }
+
+    /* Subheader: logo left, tabs right, single row */
+    .subheader { background: #1e6fa8; }
+    .inner-subheader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 12px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .subheader .phone { display: none; }
+    .subheader2 ul {
+        display: flex;
+        flex-direction: row;
+        gap: 0;
+        margin: 0;
+        padding: 0;
+    }
+    .subheader2 ul li { display: inline-block; }
+    .subheader2 ul li a {
+        font-size: 0.72rem;
+        padding: 4px 7px;
+        white-space: nowrap;
+    }
+
+    /* Consult bar: fix input height (flex-basis becomes height in column layout) */
+    .fz-consult-inputs {
+        flex-direction: column;
+    }
+    .fz-consult-inputs input {
+        flex: 0 0 auto;
+        width: 100%;
+        padding: 10px 12px;
+    }
+    #submit_contact2 {
+        width: 100%;
+    }
+
+    /* Categorías: 2 per row on mobile */
+    #categorias .features-items {
+        width: 50% !important;
+        padding: 14px 10px;
+    }
+    #categorias .features-items h4 {
+        font-size: 0.85rem;
+    }
+    #categorias .features-items p {
+        font-size: 0.75rem;
+    }
+}

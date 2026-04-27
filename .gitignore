@@ -1,0 +1,24 @@
+# ── Credenciales — NUNCA subir ──
+FADDI CREDENTIALS.txt
+*.credentials.txt
+*.env
+
+# ── Archivos de diseño fuente (Photoshop) ──
+*.psd
+
+# ── Assets de diseño raíz (archivos fuente, no del sitio web) ──
+Email.png
+Firma*.png
+Gemini_Generated_Image_*.png
+Hero*.png
+Logo*.png
+Tarjeta.png
+
+# ── Documentos regulatorios (archivos de trabajo) ──
+*.pdf
+*.docx
+*.doc
+
+# ── Misc ──
+Prompt*.txt
+Untitled-*.psd
