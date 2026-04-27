@@ -7,12 +7,12 @@ FADDI CREDENTIALS.txt
 *.psd
 
 # ── Assets de diseño raíz (archivos fuente, no del sitio web) ──
-Email.png
-Firma*.png
-Gemini_Generated_Image_*.png
-Hero*.png
-Logo*.png
-Tarjeta.png
+/Email.png
+/Firma*.png
+/Gemini_Generated_Image_*.png
+/Hero*.png
+/Logo*.png
+/Tarjeta.png
 
 # ── Documentos regulatorios (archivos de trabajo) ──
 *.pdf
