@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Farmazed Admin — Expediente</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root { --fz-blue:#1B4F8A; --fz-navy:#0F3260; --fz-green:#3A7D44; }
+    body  { background:#f0f4fa; }
+    .topbar { background:var(--fz-navy); padding:.75rem 1.5rem; }
+    .field-row { display:flex; align-items:center; border-bottom:1px solid #f0f0f0; padding:.45rem 0; gap:.5rem; }
+    .field-row:last-child { border-bottom:none; }
+    .field-label { font-size:.75rem; color:#6c757d; font-weight:600; min-width:220px; }
+    .field-value { font-size:.88rem; color:#212529; flex:1; }
+    .copy-btn { border:none; background:none; color:#adb5bd; padding:.1rem .3rem; border-radius:4px; cursor:pointer; font-size:.8rem; transition:.1s; }
+    .copy-btn:hover { color:var(--fz-blue); background:#e8f0fb; }
+    .step-header { background:var(--fz-blue); color:#fff; font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:.4rem .75rem; border-radius:6px 6px 0 0; }
+    .doc-item { display:flex; align-items:center; gap:.75rem; padding:.5rem .75rem; border-bottom:1px solid #f5f5f5; }
+    .doc-item:last-child { border-bottom:none; }
+    .doc-code { font-size:.7rem; color:var(--fz-blue); font-weight:700; min-width:45px; }
+    .doc-name { font-size:.82rem; flex:1; }
+    .cowork-btn { background:linear-gradient(135deg,#6B47DC,#3A7D44); color:#fff; border:none; border-radius:8px; padding:.5rem 1.25rem; font-weight:600; }
+    .cowork-btn:hover { opacity:.9; }
+    .status-select { font-size:.82rem; }
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar d-flex align-items-center gap-3">
+  <a href="/admin/casos.html" class="text-white-50 text-decoration-none small">← Expedientes</a>
+  <span class="text-white fw-semibold" id="top-title">Cargando...</span>
+  <div class="ms-auto d-flex gap-2 align-items-center">
+    <select class="form-select form-select-sm status-select" id="status-select" style="width:auto">
+      <option value="submitted">Enviado</option>
+      <option value="in_review">En Revisión</option>
+      <option value="pending_docs">Docs Pendientes</option>
+      <option value="faddi_ready">Listo para FADDI</option>
+      <option value="faddi_submitted">En FADDI</option>
+      <option value="approved">Aprobado ✅</option>
+      <option value="observed">Observado ⚠️</option>
+    </select>
+    <button class="btn btn-sm btn-outline-light" id="btn-save-status">Guardar estado</button>
+    <button class="cowork-btn btn btn-sm" id="btn-cowork">⚡ Abrir en Cowork</button>
+  </div>
+</div>
+
+<div class="container-fluid p-4">
+  <div id="loading" class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+  <div id="content" class="d-none">
+
+    <div class="row g-4">
+      <!-- LEFT: Datos + documentos por paso -->
+      <div class="col-lg-8">
+
+        <!-- Datos del producto -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="step-header">Datos del Producto — Paso 3 FADDI</div>
+          <div class="card-body py-2" id="product-fields"></div>
+        </div>
+
+        <!-- Entidades -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="step-header">Empresas y Personas — Pasos 4–11 FADDI</div>
+          <div class="card-body py-2" id="entities-fields"></div>
+        </div>
+
+        <!-- Documentos organizados por paso FADDI -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="step-header">Documentos Adjuntos — Paso 15 FADDI</div>
+          <div id="docs-list" class="p-2"></div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Info + notas -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-3 p-3">
+          <div class="small fw-bold text-muted mb-2 text-uppercase">Información del Expediente</div>
+          <div id="case-meta"></div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3 p-3">
+          <div class="small fw-bold text-muted mb-2 text-uppercase">FADDI Tracking</div>
+          <div class="mb-2">
+            <label class="form-label small">N° Expediente FADDI</label>
+            <input type="text" class="form-control form-control-sm" id="faddi-exp" placeholder="Asignar al ingresar">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">N° Solicitud FADDI</label>
+            <input type="text" class="form-control form-control-sm" id="faddi-sol" placeholder="—">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Último estado FADDI</label>
+            <input type="text" class="form-control form-control-sm" id="faddi-status" placeholder="—">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Observaciones DNFD</label>
+            <textarea class="form-control form-control-sm" id="faddi-obs" rows="2" placeholder="—"></textarea>
+          </div>
+          <button class="btn btn-sm btn-outline-primary w-100" id="btn-save-faddi">Guardar FADDI info</button>
+        </div>
+
+        <div class="card border-0 shadow-sm p-3">
+          <div class="small fw-bold text-muted mb-2 text-uppercase">Notas Internas</div>
+          <textarea class="form-control form-control-sm" id="admin-notes" rows="4" placeholder="Notas visibles solo para el equipo Farmazed..."></textarea>
+          <button class="btn btn-sm btn-outline-secondary w-100 mt-2" id="btn-save-notes">Guardar notas</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Cowork modal -->
+<div class="modal fade" id="coworkModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--fz-navy)">
+        <h6 class="modal-title text-white mb-0">⚡ Sesión de Llenado FADDI con Claude Cowork</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info small mb-3">
+          <strong>Cómo usar:</strong> Copia el contexto de abajo y pégalo como primer mensaje en Claude Cowork.
+          Claude tendrá todos los datos del expediente y te guiará campo por campo en FADDI.
+          <br><br>
+          <strong>Alternativa:</strong> Si tienes el plugin MCP de Farmazed instalado en Cowork, simplemente dile:<br>
+          <code>"Obtén el expediente <span id="modal-case-id"></span> y ayúdame a llenar FADDI."</code>
+        </div>
+        <label class="form-label small fw-semibold">Contexto para Claude Cowork:</label>
+        <textarea class="form-control font-monospace" id="cowork-context" rows="16" style="font-size:.75rem"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+        <button class="btn btn-primary btn-sm" id="btn-copy-context">📋 Copiar contexto</button>
+        <a class="btn btn-success btn-sm" href="https://claude.ai" target="_blank">Abrir Claude Cowork →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+  import { requireLogin, isAdmin } from '../portal/js/auth.js';
+  import api from '../portal/js/api.js';
+
+  const caseId = new URLSearchParams(window.location.search).get('id');
+  let caseData, checklistData, docsData;
+
+  const FADDI_URL = { medicamentos:'https://sisregsan.minsa.gob.pa/forms/user/medicamentos/registrar.aspx',
+    cosmeticos:'https://sisregsan.minsa.gob.pa/forms/user/cosmeticos/registrar.aspx',
+    higienicos:'https://sisregsan.minsa.gob.pa/forms/user/higienicos/registrar.aspx',
+    plaguicidas:'https://sisregsan.minsa.gob.pa/forms/user/plaguicidas/registrar.aspx',
+    excepcion:'https://sisregsan.minsa.gob.pa/forms/user/excepcion/registrar.aspx',
+    publicidad:'https://sisregsan.minsa.gob.pa/forms/user/publicidad/registrar.aspx',
+  };
+
+  function copyField(val) {
+    navigator.clipboard.writeText(val).then(() => {
+      const toast = document.createElement('div');
+      toast.className = 'position-fixed bottom-0 end-0 m-3 alert alert-success py-1 px-3 small shadow';
+      toast.textContent = '📋 Copiado';
+      toast.style.zIndex = 9999;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 1500);
+    });
+  }
+
+  function fieldRow(label, value, faddiField = '') {
+    if (!value || value === '—') return '';
+    return `<div class="field-row">
+      <div class="field-label">${faddiField ? `<span class="text-primary">${faddiField}</span> — ` : ''}${label}</div>
+      <div class="field-value">${value}</div>
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('${value.replace(/'/g,"\\'")}').then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='📋',1200)})" title="Copiar">📋</button>
+    </div>`;
+  }
+
+  async function init() {
+    await requireLogin('/portal/login.html');
+    if (!(await isAdmin())) { window.location.href = '/portal/dashboard.html'; return; }
+    if (!caseId) { window.location.href = '/admin/casos.html'; return; }
+
+    try {
+      [caseData, checklistData, docsData] = await Promise.all([
+        api.getCase(caseId),
+        api.getChecklist(caseId),
+        api.listDocuments(caseId),
+      ]);
+      render();
+    } catch (e) {
+      document.getElementById('loading').innerHTML = `<div class="alert alert-danger m-4">${e.message}</div>`;
+    }
+  }
+
+  function render() {
+    document.getElementById('loading').classList.add('d-none');
+    document.getElementById('content').classList.remove('d-none');
+    const p = caseData.product || {};
+    const e = caseData.entities || {};
+
+    // Topbar title
+    document.getElementById('top-title').textContent = `${p.nombreComercial || '(sin nombre)'} — ${caseData.tramiteType}`;
+    document.getElementById('status-select').value = caseData.status;
+
+    // Product fields
+    document.getElementById('product-fields').innerHTML = [
+      fieldRow('Nombre Comercial',            p.nombreComercial,         '3.1.1'),
+      fieldRow('Principio Activo (DCI)',       p.principioActivo,         '3.1.2'),
+      fieldRow('Concentración',                p.concentracion,           '3.1.3'),
+      fieldRow('Forma Farmacéutica',           p.formaFarmaceutica,       '3.1.4'),
+      fieldRow('Vía de Administración',        p.viaAdministracion,       '3.1.5'),
+      fieldRow('Condición de Venta',           p.condicionVenta,          '3.1.6'),
+      fieldRow('Código ATC',                   p.codigoATC,               '3.1.7'),
+      fieldRow('Descripción de Envase',        p.descripcionEnvase,       '3.1.8'),
+      fieldRow('Vida Útil',                    p.vidaUtil,                '3.1.9'),
+      fieldRow('Condiciones Almacenamiento',   p.condicionesAlmacenamiento,'3.1.10'),
+      fieldRow('Tipo de Presentación',         p.tipoPresentacion,        '3.2.1'),
+      fieldRow('Descripción Presentación',     p.descripcionPresentacion, '3.2.2'),
+      caseData.tipoMedicamento?.length ? fieldRow('Tipo de Medicamento (checkboxes)', caseData.tipoMedicamento.join(', '), '2.1') : '',
+      fieldRow('Clasificación',                p.clasificacion,           '2.4'),
+      fieldRow('Forma Cosmética',              p.formaCosmetica,          '2.6'),
+    ].filter(Boolean).join('') || '<div class="text-muted small p-3">Sin datos de producto.</div>';
+
+    // Entities
+    const entSections = [
+      { label:'4.1 Fabricante',        obj:e.fabricante,          fields:[['Correo','correo'],['Nombre','nombre'],['País','pais'],['Dirección','direccion']] },
+      { label:'6. Titular',            obj:e.titular,             fields:[['Correo','correo'],['Nombre','nombre'],['País','pais'],['Dirección','direccion']] },
+      { label:'8. Empresa Solicitante',obj:e.solicitante,         fields:[['RUC','ruc'],['Nombre','nombre'],['Teléfono','telefono'],['Correo','correo'],['Dirección','direccion']] },
+      { label:'9. Representante Legal',obj:e.representanteLegal,  fields:[['Cédula','cedula'],['Nombre','nombre'],['Teléfono','telefono'],['Correo','correo'],['Dirección','direccion']] },
+      { label:'10. Abogado',           obj:e.abogado,             fields:[['Cédula','cedula'],['Idoneidad','idoneidad'],['Nombre','nombre'],['Correo','correo'],['Dirección','direccion']] },
+      { label:'11. Farmacéutico',      obj:e.farmaceutico,        fields:[['Cédula','cedula'],['Idoneidad','idoneidad'],['Nombre','nombre'],['Correo','correo'],['Dirección','direccion']] },
+    ];
+    document.getElementById('entities-fields').innerHTML = entSections.map(s => {
+      if (!s.obj || !Object.values(s.obj).some(v=>v)) return '';
+      return `<div class="mb-2"><div class="small fw-bold text-muted border-bottom pb-1 mb-1">${s.label}</div>
+        ${s.fields.map(([l,k]) => fieldRow(l, s.obj[k])).filter(Boolean).join('')}</div>`;
+    }).join('') || '<div class="text-muted small p-3">Sin datos de empresas.</div>';
+
+    // Docs
+    const docsById = {};
+    (docsData.documents || []).forEach(d => { docsById[d.faddiDocId] = d; });
+
+    const checklist = checklistData.checklist || [];
+    document.getElementById('docs-list').innerHTML = checklist.map(item => {
+      const doc    = docsById[item.id];
+      const status = doc ? doc.status : 'missing';
+      const icons  = { uploaded:'✅', approved:'✅', rejected:'❌', requested:'🔔', missing:'⬜', reviewing:'🔍' };
+      const color  = { uploaded:'text-success', approved:'text-success', rejected:'text-danger', missing:'text-muted', requested:'text-warning' };
+      return `<div class="doc-item">
+        <span class="doc-code">${item.faddiCode}</span>
+        <span class="${color[status]||''}">${icons[status]||'⬜'}</span>
+        <span class="doc-name">${item.name}${!item.required ? ' <span class="text-muted" style="font-size:.7rem">(opcional)</span>' : ''}</span>
+        ${doc ? `<a href="#" class="btn btn-xs btn-outline-primary btn-sm py-0 px-2 small" 
+                    onclick="openDoc('${caseId}','${doc.id}');return false">Ver</a>` : 
+                 `<button class="btn btn-xs btn-outline-warning btn-sm py-0 px-2 small"
+                    onclick="requestDoc('${item.id}','${item.name}')">Solicitar</button>`}
+      </div>`;
+    }).join('');
+
+    // Meta
+    document.getElementById('case-meta').innerHTML = `
+      <div class="field-row"><div class="field-label">ID</div><div class="field-value font-monospace small">${caseId}</div></div>
+      <div class="field-row"><div class="field-label">Cliente</div><div class="field-value">${caseData.clientEmail}</div></div>
+      <div class="field-row"><div class="field-label">Tipo trámite</div><div class="field-value">${caseData.tramiteType}</div></div>
+      <div class="field-row"><div class="field-label">Tipo registro</div><div class="field-value">${caseData.tipoRegistro||'—'}</div></div>
+      <div class="field-row"><div class="field-label">Docs subidos</div>
+        <div class="field-value">${checklistData.progress?.uploaded||0} / ${checklistData.progress?.total||0}</div></div>`;
+
+    // FADDI tracking fields
+    const faddi = caseData.faddi || {};
+    document.getElementById('faddi-exp').value    = faddi.expedienteNumber || '';
+    document.getElementById('faddi-sol').value    = faddi.solicitudNumber  || '';
+    document.getElementById('faddi-status').value = faddi.lastFaddiStatus  || '';
+    document.getElementById('faddi-obs').value    = faddi.observations     || '';
+    document.getElementById('admin-notes').value  = caseData.notes         || '';
+
+    // Cowork modal content
+    document.getElementById('modal-case-id').textContent = caseId;
+    buildCoworkContext();
+  }
+
+  function buildCoworkContext() {
+    const p  = caseData.product || {};
+    const e  = caseData.entities || {};
+    const cl = checklistData.checklist || [];
+    const docs = docsData.documents || [];
+    const url = FADDI_URL[caseData.tramiteType] || '';
+
+    let ctx = `# Contexto FADDI — Expediente ${caseId}\n`;
+    ctx += `**Producto:** ${p.nombreComercial || '?'}\n`;
+    ctx += `**Módulo FADDI:** ${caseData.tramiteType} — ${caseData.tipoSolicitud} ${caseData.tipoRegistro||''}\n`;
+    ctx += `**URL FADDI:** ${url}\n\n`;
+    ctx += `## INSTRUCCIONES\nNavega a la URL de FADDI usando Claude in Chrome. Llena cada campo con los valores exactos. NO hagas click en Finalizar/Enviar — el admin lo confirma manualmente.\n\n`;
+    ctx += `## DATOS POR PASO\n\n`;
+    ctx += `### Paso 1 y 2\n- 1.1 Tipo Solicitud: **${caseData.tipoSolicitud}**\n- 1.2 Tipo Registro: **${caseData.tipoRegistro||'Regular'}**\n`;
+    if (caseData.tipoMedicamento?.length) ctx += `- 2.1 Tipo Medicamento (checkboxes): **${caseData.tipoMedicamento.join(', ')}**\n`;
+    ctx += `\n### Paso 3 — Producto\n`;
+    const pFields = [['3.1.1 Nombre','nombreComercial'],['3.1.2 DCI','principioActivo'],['3.1.3 Concentración','concentracion'],
+      ['3.1.4 Forma Farm.','formaFarmaceutica'],['3.1.5 Vía Adm.','viaAdministracion'],['3.1.6 Cond. Venta','condicionVenta'],
+      ['3.1.7 Código ATC','codigoATC'],['3.1.9 Vida Útil','vidaUtil'],['3.2.2 Presentación','descripcionPresentacion']];
+    pFields.forEach(([l,k]) => { if(p[k]) ctx += `- ${l}: **${p[k]}**\n`; });
+    ctx += `\n### Paso 4 — Fabricante\n`;
+    if(e.fabricante){const f=e.fabricante;['correo','nombre','pais','direccion'].forEach(k=>{if(f[k])ctx+=`- 4.1.${k}: **${f[k]}**\n`;})}
+    ctx += `\n### Paso 8 — Empresa Solicitante\n`;
+    if(e.solicitante){const s=e.solicitante;['ruc','nombre','telefono','correo','direccion'].forEach(k=>{if(s[k])ctx+=`- 8.${k}: **${s[k]}**\n`;})}
+    ctx += `\n## DOCUMENTOS DISPONIBLES\n`;
+    docs.forEach(d => { ctx += `- [${d.faddiCode}] ${d.faddiDocName} — ${d.fileName} — ID: ${d.id}\n`; });
+    ctx += `\nPara obtener la URL de descarga de un documento:\nfarmazed_get_document(caseId="${caseId}", docId="<docId>")\n`;
+    ctx += `\nSi tienes el plugin MCP Farmazed instalado, puedes llamar directamente:\nfarmazed_get_faddi_context(caseId="${caseId}")\n`;
+
+    document.getElementById('cowork-context').value = ctx;
+  }
+
+  // Global helpers for onclick
+  window.openDoc = async (caseId, docId) => {
+    try {
+      const doc = await api.getDocument(caseId, docId);
+      window.open(doc.signedUrl, '_blank');
+    } catch(e) { alert('Error: ' + e.message); }
+  };
+  window.requestDoc = async (faddiDocId, name) => {
+    const msg = prompt(`Instrucciones para el cliente sobre "${name}":`);
+    if (!msg) return;
+    try {
+      await api.requestDocument(caseId, faddiDocId, msg);
+      alert('Solicitud enviada al cliente.');
+      docsData = await api.listDocuments(caseId);
+      render();
+    } catch (e) {
+      alert('Error: ' + e.message);
+    }
+  };
+
+  // Actions
+  document.getElementById('btn-save-status').addEventListener('click', async () => {
+    await api.updateCase(caseId, { status: document.getElementById('status-select').value });
+    alert('Estado actualizado.');
+  });
+
+  document.getElementById('btn-save-faddi').addEventListener('click', async () => {
+    await api.updateCase(caseId, { faddi: {
+      expedienteNumber: document.getElementById('faddi-exp').value,
+      solicitudNumber:  document.getElementById('faddi-sol').value,
+      lastFaddiStatus:  document.getElementById('faddi-status').value,
+      observations:     document.getElementById('faddi-obs').value,
+    }});
+    alert('Info FADDI guardada.');
+  });
+
+  document.getElementById('btn-save-notes').addEventListener('click', async () => {
+    await api.updateCase(caseId, { notes: document.getElementById('admin-notes').value });
+    alert('Notas guardadas.');
+  });
+
+  document.getElementById('btn-cowork').addEventListener('click', () => {
+    new bootstrap.Modal(document.getElementById('coworkModal')).show();
+  });
+
+  document.getElementById('btn-copy-context').addEventListener('click', () => {
+    navigator.clipboard.writeText(document.getElementById('cowork-context').value)
+      .then(() => { document.getElementById('btn-copy-context').textContent = '✓ Copiado'; });
+  });
+
+  init();
+</script>
+</body>
+</html>

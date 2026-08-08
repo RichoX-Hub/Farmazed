@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Farmazed — Nuevo Expediente</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root { --fz-blue:#1B4F8A; --fz-navy:#0F3260; --fz-green:#3A7D44; }
+    body  { background:#f0f4fa; font-family:'Segoe UI',sans-serif; }
+    .navbar { background:var(--fz-navy); }
+
+    /* ── Step indicator ── */
+    .wz-tabs { display:flex; gap:0; border-bottom:2px solid #dee2e6; margin-bottom:2rem; }
+    .wz-tab  { flex:1; padding:.6rem .3rem; text-align:center; font-size:.78rem; font-weight:600;
+               color:#adb5bd; border-bottom:3px solid transparent; transition:.2s; cursor:default; }
+    .wz-tab.active { color:var(--fz-blue); border-bottom-color:var(--fz-blue); }
+    .wz-tab.done   { color:var(--fz-green); border-bottom-color:var(--fz-green); }
+
+    /* ── Tramite cards ── */
+    .tramite-card { display:block; border:2px solid #dee2e6; border-radius:12px; padding:1.25rem 1rem;
+                    text-align:center; cursor:pointer; transition:.15s; height:100%; }
+    .tramite-card:hover   { border-color:var(--fz-blue); background:#f0f4fa; }
+    .tramite-card.selected{ border-color:var(--fz-blue); background:#e8f0fb; }
+    .tramite-icon  { font-size:2rem; margin-bottom:.5rem; }
+    .tramite-label { font-weight:600; font-size:.9rem; }
+    .tramite-desc  { font-size:.75rem; color:#6c757d; margin-top:.25rem; }
+
+    /* ── Doc cards ── */
+    .doc-card { transition:.15s; }
+    .doc-card:hover { background:#f8f9fa !important; }
+
+    .wz-step { min-height:400px; }
+    .entity-section { border-left:3px solid #dee2e6; padding-left:1rem; margin-bottom:1.5rem; }
+    .entity-section h6 { color:var(--fz-blue); font-weight:700; font-size:.8rem; text-transform:uppercase; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark px-4 py-3">
+  <a class="navbar-brand fw-bold" href="/portal/dashboard.html">← Mis Expedientes</a>
+  <span class="text-white-50 small" id="user-name"></span>
+</nav>
+
+<div class="container py-4" style="max-width:860px">
+  <h4 class="fw-bold mb-1">Nuevo Expediente de Registro Sanitario</h4>
+  <p class="text-muted small mb-4">Completa los datos paso a paso. Tu progreso se guarda automáticamente.</p>
+
+  <!-- Step tabs -->
+  <div class="wz-tabs">
+    <div class="wz-tab active" data-step="1">1. Tipo de Trámite</div>
+    <div class="wz-tab"       data-step="2">2. Datos del Producto</div>
+    <div class="wz-tab"       data-step="3">3. Empresas</div>
+    <div class="wz-tab"       data-step="4">4. Documentos</div>
+    <div class="wz-tab"       data-step="5">5. Confirmar</div>
+  </div>
+
+  <div class="card border-0 shadow-sm p-4">
+
+    <!-- ── STEP 1 ── -->
+    <div class="wz-step" id="step-1">
+      <h5 class="fw-semibold mb-1">¿Qué tipo de registro necesitas?</h5>
+      <p class="text-muted small mb-4">Selecciona el módulo que corresponde a tu producto.</p>
+      <div class="row g-3" id="tramite-grid"></div>
+
+      <div class="mt-4 d-none" id="med-extra">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Tipo de Solicitud</label>
+            <select class="form-select" id="tipoSolicitud">
+              <option>Nuevo Registro</option>
+              <option>Renovación Sin Cambios</option>
+              <option>Renovación Con Cambios</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Tipo de Procedimiento</label>
+            <select class="form-select" id="tipoRegistro"></select>
+            <div class="form-text">Abreviado requiere aprobación ARR (FDA, EMA, INVIMA, etc.)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 2 ── -->
+    <div class="wz-step d-none" id="step-2">
+      <h5 class="fw-semibold mb-1">Datos del Producto</h5>
+      <p class="text-muted small mb-4">Estos datos se usarán directamente para llenar el formulario FADDI.</p>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Nombre Comercial <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="nombreComercial" placeholder="Ej: Amoxicilina 500mg">
+        </div>
+        <div class="col-md-6 d-none" data-only-med>
+          <label class="form-label small fw-semibold">Principio Activo (DCI) <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="principioActivo" placeholder="Ej: Amoxicilina">
+        </div>
+        <div class="col-md-4 d-none" data-only-med>
+          <label class="form-label small fw-semibold">Concentración <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="concentracion" placeholder="Ej: 500 mg">
+        </div>
+        <div class="col-md-4 d-none" data-only-med>
+          <label class="form-label small fw-semibold">Forma Farmacéutica <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="formaFarmaceutica" placeholder="Ej: CÁPSULA">
+        </div>
+        <div class="col-md-4 d-none" data-only-med>
+          <label class="form-label small fw-semibold">Vía de Administración <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="viaAdministracion" placeholder="Ej: ORAL">
+        </div>
+        <div class="col-md-6 d-none" data-only-med>
+          <label class="form-label small fw-semibold">Condición de Venta <span class="text-danger">*</span></label>
+          <select class="form-select" id="condicionVenta"></select>
+        </div>
+        <div class="col-md-3 d-none" data-only-med>
+          <label class="form-label small fw-semibold">Código ATC</label>
+          <input type="text" class="form-control" id="codigoATC" placeholder="Ej: J01CA04">
+        </div>
+        <div class="col-md-3 d-none" data-only-med>
+          <label class="form-label small fw-semibold">Vida Útil</label>
+          <input type="text" class="form-control" id="vidaUtil" placeholder="Ej: 36 meses">
+        </div>
+        <div class="col-12 d-none" data-only-med>
+          <label class="form-label small fw-semibold">Condiciones de Almacenamiento</label>
+          <textarea class="form-control" id="condicionesAlmacenamiento" rows="2" placeholder="Ej: Conservar a temperatura no mayor de 30°C en lugar seco."></textarea>
+        </div>
+        <div class="col-md-4" data-only-cos>
+          <label class="form-label small fw-semibold">Clasificación</label>
+          <input type="text" class="form-control" id="clasificacion" placeholder="Ej: PRODUCTOS PARA EL CABELLO">
+        </div>
+        <div class="col-md-4" data-only-cos>
+          <label class="form-label small fw-semibold">Forma Cosmética</label>
+          <input type="text" class="form-control" id="formaCosmetica" placeholder="Ej: SHAMPOO / CHAMPÚ">
+        </div>
+        <div class="col-12">
+          <label class="form-label small fw-semibold">Descripción del Envase</label>
+          <input type="text" class="form-control" id="descripcionEnvase" placeholder="Ej: FRASCO DE 250 ML">
+        </div>
+        <div class="col-12">
+          <label class="form-label small fw-semibold">Presentación del Producto</label>
+          <input type="text" class="form-control" id="descripcionPresentacion" placeholder="Ej: CAJA CON 30 TABLETAS RECUBIERTAS">
+        </div>
+        <div class="col-12 d-none" data-only-med>
+          <label class="form-label small fw-semibold d-block mb-2">Tipo de Medicamento <span class="text-danger">*</span></label>
+          <div id="tipo-med-checks"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 3 ── -->
+    <div class="wz-step d-none" id="step-3">
+      <h5 class="fw-semibold mb-1">Datos de las Empresas</h5>
+      <p class="text-muted small mb-4">Esta información se usará para los pasos 4–11 de FADDI. Puedes completarla parcialmente ahora y actualizarla después.</p>
+
+      <div class="entity-section">
+        <h6>Empresa Fabricante <span class="text-danger">*</span></h6>
+        <div class="row g-2">
+          <div class="col-md-6"><input class="form-control form-control-sm" id="fab-correo"    placeholder="Correo electrónico"></div>
+          <div class="col-md-6"><input class="form-control form-control-sm" id="fab-nombre"    placeholder="Nombre del fabricante"></div>
+          <div class="col-md-4"><input class="form-control form-control-sm" id="fab-pais"      placeholder="País"></div>
+          <div class="col-md-8"><input class="form-control form-control-sm" id="fab-direccion" placeholder="Dirección"></div>
+        </div>
+      </div>
+
+      <div class="entity-section">
+        <h6>Titular del Producto</h6>
+        <div class="row g-2">
+          <div class="col-md-6"><input class="form-control form-control-sm" id="tit-correo"    placeholder="Correo electrónico"></div>
+          <div class="col-md-6"><input class="form-control form-control-sm" id="tit-nombre"    placeholder="Nombre del titular"></div>
+          <div class="col-md-4"><input class="form-control form-control-sm" id="tit-pais"      placeholder="País"></div>
+          <div class="col-md-8"><input class="form-control form-control-sm" id="tit-direccion" placeholder="Dirección"></div>
+        </div>
+      </div>
+
+      <div class="entity-section">
+        <h6>Empresa Solicitante (en Panamá) <span class="text-danger">*</span></h6>
+        <div class="row g-2">
+          <div class="col-md-4"><input class="form-control form-control-sm" id="sol-ruc"       placeholder="Número de RUC"></div>
+          <div class="col-md-8"><input class="form-control form-control-sm" id="sol-nombre"    placeholder="Nombre de la empresa"></div>
+          <div class="col-md-4"><input class="form-control form-control-sm" id="sol-telefono"  placeholder="Teléfono de contacto"></div>
+          <div class="col-md-4"><input class="form-control form-control-sm" id="sol-correo"    placeholder="Correo electrónico"></div>
+          <div class="col-md-4"><input class="form-control form-control-sm" id="sol-direccion" placeholder="Dirección"></div>
+        </div>
+      </div>
+
+      <div class="entity-section">
+        <h6>Representante Legal</h6>
+        <div class="row g-2">
+          <div class="col-md-3"><input class="form-control form-control-sm" id="rep-cedula"    placeholder="Cédula"></div>
+          <div class="col-md-5"><input class="form-control form-control-sm" id="rep-nombre"    placeholder="Nombre completo"></div>
+          <div class="col-md-4"><input class="form-control form-control-sm" id="rep-telefono"  placeholder="Teléfono"></div>
+          <div class="col-md-6"><input class="form-control form-control-sm" id="rep-correo"    placeholder="Correo"></div>
+          <div class="col-md-6"><input class="form-control form-control-sm" id="rep-direccion" placeholder="Dirección"></div>
+        </div>
+      </div>
+
+      <div class="entity-section">
+        <h6>Farmacéutico Regente</h6>
+        <div class="row g-2">
+          <div class="col-md-3"><input class="form-control form-control-sm" id="far-cedula"    placeholder="Cédula"></div>
+          <div class="col-md-3"><input class="form-control form-control-sm" id="far-idoneidad" placeholder="N° Idoneidad"></div>
+          <div class="col-md-6"><input class="form-control form-control-sm" id="far-nombre"    placeholder="Nombre completo"></div>
+          <div class="col-md-4"><input class="form-control form-control-sm" id="far-telefono"  placeholder="Teléfono"></div>
+          <div class="col-md-4"><input class="form-control form-control-sm" id="far-correo"    placeholder="Correo"></div>
+          <div class="col-md-4"><input class="form-control form-control-sm" id="far-direccion" placeholder="Dirección"></div>
+        </div>
+      </div>
+
+      <div class="entity-section">
+        <h6>Abogado</h6>
+        <div class="row g-2">
+          <div class="col-md-3"><input class="form-control form-control-sm" id="abo-cedula"    placeholder="Cédula"></div>
+          <div class="col-md-3"><input class="form-control form-control-sm" id="abo-idoneidad" placeholder="N° Idoneidad"></div>
+          <div class="col-md-6"><input class="form-control form-control-sm" id="abo-nombre"    placeholder="Nombre completo"></div>
+          <div class="col-md-4"><input class="form-control form-control-sm" id="abo-correo"    placeholder="Correo"></div>
+          <div class="col-md-8"><input class="form-control form-control-sm" id="abo-direccion" placeholder="Dirección"></div>
+        </div>
+      </div>
+
+      <div class="entity-section">
+        <h6>Distribuidores en Panamá</h6>
+        <div id="distribuidores-list">
+          <input class="form-control form-control-sm distribuidor-licencia mb-2" placeholder="Número de Licencia del Distribuidor">
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-add-dist">
+          + Agregar distribuidor
+        </button>
+      </div>
+    </div>
+
+    <!-- ── STEP 4 ── -->
+    <div class="wz-step d-none" id="step-4">
+      <h5 class="fw-semibold mb-1">Carga de Documentos</h5>
+      <p class="text-muted small mb-3">Sube cada documento en el slot correspondiente. Formato: PDF, JPG, PNG o DOCX. Máx. 50 MB por archivo.</p>
+      <div id="upload-progress" class="mb-4"></div>
+      <div id="checklist-container"></div>
+    </div>
+
+    <!-- ── STEP 5 ── -->
+    <div class="wz-step d-none" id="step-5">
+      <div class="text-center mb-4">
+        <div style="font-size:3rem">📋</div>
+        <h5 class="fw-semibold mt-2">Confirmación del Expediente</h5>
+        <p class="text-muted small">Revisa el resumen antes de enviar a Farmazed.</p>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <table class="table table-sm">
+            <tr><td class="text-muted small fw-semibold">Producto</td><td id="confirm-product-name" class="fw-bold">—</td></tr>
+            <tr><td class="text-muted small fw-semibold">Tipo de Trámite</td><td id="confirm-tramite">—</td></tr>
+            <tr><td class="text-muted small fw-semibold">Documentos</td><td id="confirm-progress">—</td></tr>
+          </table>
+          <div id="confirm-missing"></div>
+          <p class="text-muted small mt-3">Al enviar, el equipo de Farmazed recibirá una notificación y revisará tu expediente. Te contactarán si necesitan documentos adicionales.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+
+  <!-- Navigation -->
+  <div class="d-flex justify-content-between mt-3">
+    <button class="btn btn-outline-secondary px-4" id="btn-prev">← Anterior</button>
+    <button class="btn btn-primary px-5" id="btn-next">Siguiente →</button>
+  </div>
+</div>
+
+<script type="module" src="/portal/js/wizard.js"></script>
+<script>
+  // Add distribuidor dynamically
+  document.getElementById('btn-add-dist')?.addEventListener('click', () => {
+    const el = document.createElement('input');
+    el.className = 'form-control form-control-sm distribuidor-licencia mb-2';
+    el.placeholder = 'Número de Licencia del Distribuidor';
+    document.getElementById('distribuidores-list').appendChild(el);
+  });
+</script>
+</body>
+</html>
