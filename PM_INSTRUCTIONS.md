@@ -348,8 +348,8 @@ All code is written, bug-fixed, and syntactically valid. Developer work is integ
 | **T0** | ~~Integrate code into repo~~ **✅ DONE** — code was pushed to `origin/main` directly from `Proyecto Farmazetd Regulatory\` in a prior session (not via the `repo\` copy procedure). Pricing feature (routes/pricing.js, seed_pricing.js, precios.html) committed + pushed 2026-08-25. | — | ✅ DONE |
 | T1 | Firebase project setup + fill `portal/js/config.js` | 1–2 h | ✅ DONE (2026-08-25) — Auth enabled, Firestore created (us-central1, Native mode), web app registered, config.js pushed |
 | T2 | GCS bucket "farmazed-docs" + CORS config | 30 min | ✅ DONE (2026-08-25) — bucket created us-central1, CORS set for farmazed.com + localhost:8092 |
-| T3 | Service Account (Firestore + Storage + Firebase Auth roles) | 20 min | ⏳ PENDING — next up |
-| T4 | **Redeploy** `farmazed-tracker` with v2 code (service already exists — update only) | 15 min | ⏳ PENDING (blocked on T0) |
+| T3 | Service Account (Firestore + Storage + Firebase Auth roles) | 20 min | ✅ DONE (2026-08-25) — farmazed-api-sa created with datastore.user, storage.objectAdmin, firebase.sdkAdminServiceAgent |
+| T4 | **Redeploy** `farmazed-tracker` with v2 code (service already exists — update only) | 15 min | ⏳ PENDING — next up |
 | T5 | First admin user (Firebase UID → POST /api/admin/set-role) | 5 min | ⏳ PENDING |
 | T6 | Add /portal/ and /admin/ to nginx.conf + redeploy farmazed-web | 20 min | ⏳ PENDING |
 | T7 | End-to-end verification (health, auth, case wizard, GCS upload, admin panel, Cowork modal) | 15 min | ⏳ PENDING |
