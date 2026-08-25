@@ -351,8 +351,8 @@ All code is written, bug-fixed, and syntactically valid. Developer work is integ
 | T3 | Service Account (Firestore + Storage + Firebase Auth roles) | 20 min | ✅ DONE (2026-08-25) — farmazed-api-sa created with datastore.user, storage.objectAdmin, firebase.sdkAdminServiceAgent |
 | T4 | **Redeploy** `farmazed-tracker` with v2 code (service already exists — update only) | 15 min | ✅ DONE (2026-08-25) — revision farmazed-tracker-00002-nfc live, v2.0.0 confirmed via /health. Old fz-admin-2026 fallback key confirmed rejected. |
 | T4.5 | Seed pricing data into Firestore | 5 min | ✅ DONE (2026-08-25) — 13 categories confirmed live via /api/admin/pricing. Note: tracker/node_modules was corrupted (missing files in firebase-admin, whatwg-url) — fixed with a clean `rm -rf node_modules && npm install`. package-lock.json now committed to prevent recurrence. |
-| T5 | First admin user (Firebase UID → POST /api/admin/set-role) | 5 min | ⏳ PENDING — next up |
-| T6 | Add /portal/ and /admin/ to nginx.conf + redeploy farmazed-web | 20 min | ⏳ PENDING |
+| T5 | First admin user (Firebase UID → POST /api/admin/set-role) | 5 min | ✅ DONE (2026-08-25) — admin claim set via API, confirmed {"admin":true,"updated":true}. Note: claim applies on next token refresh/re-login. |
+| T6 | Add /portal/ and /admin/ to nginx.conf + redeploy farmazed-web | 20 min | ⏳ PENDING — next up |
 | T7 | End-to-end verification (health, auth, case wizard, GCS upload, admin panel, Cowork modal) | 15 min | ⏳ PENDING |
 | T8 | MCP plugin in Cowork (per team member) | 5 min/person | ⏳ PENDING |
 
