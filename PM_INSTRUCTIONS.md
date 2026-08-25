@@ -249,7 +249,7 @@ Current prices extracted from **`Actualización de nuestros precios para la plat
 | GET | /api/admin/pricing | — | List all pricing categories (public read) |
 | PATCH | /api/admin/pricing/:categoryId | x-admin-key | Update one pricing category's components |
 | GET | /api/pricing/:tramiteType | — | Public: estimated cost for a trámite type (for portal display) |
-| GET | /mcp | MCP_KEY | MCP server info (tool list) |
+| GET | /mcp | — (public discovery info) | MCP server info (tool list) |
 | POST | /mcp | MCP_KEY | MCP JSON-RPC (tools/list, tools/call) |
 
 ---
@@ -313,7 +313,7 @@ Documents required per tramiteType (totals are for base + applicable conditional
 | farmazed.com/portal/* | ❌ NOT DEPLOYED | nginx fallback → marketing site |
 | farmazed.com/admin/* | ❌ NOT DEPLOYED | nginx fallback → marketing site |
 | farmazed-tracker API → /qr | ✅ LIVE (v1) | Redirects to farmazed.com ✓ |
-| farmazed-tracker API → /api/* | ❌ NOT DEPLOYED (code is on GitHub, Cloud Run not yet redeployed) | v1 is what's live; v2 code is on `origin/main`, needs T4 (redeploy) |
+| farmazed-tracker API → /api/* | ✅ LIVE (v2.0.0, 2026-08-25) | Confirmed via /health, /api/admin/pricing (13 categories seeded) |
 | origin/main (GitHub) | ✅ UP TO DATE | Has tracker v2, portal, admin, MCP, all Aug-08 fixes. Pricing feature pending commit (see below). |
 
 ### ⚠️ Important: Current System is a Static Prototype
@@ -349,8 +349,9 @@ All code is written, bug-fixed, and syntactically valid. Developer work is integ
 | T1 | Firebase project setup + fill `portal/js/config.js` | 1–2 h | ✅ DONE (2026-08-25) — Auth enabled, Firestore created (us-central1, Native mode), web app registered, config.js pushed |
 | T2 | GCS bucket "farmazed-docs" + CORS config | 30 min | ✅ DONE (2026-08-25) — bucket created us-central1, CORS set for farmazed.com + localhost:8092 |
 | T3 | Service Account (Firestore + Storage + Firebase Auth roles) | 20 min | ✅ DONE (2026-08-25) — farmazed-api-sa created with datastore.user, storage.objectAdmin, firebase.sdkAdminServiceAgent |
-| T4 | **Redeploy** `farmazed-tracker` with v2 code (service already exists — update only) | 15 min | ⏳ PENDING — next up |
-| T5 | First admin user (Firebase UID → POST /api/admin/set-role) | 5 min | ⏳ PENDING |
+| T4 | **Redeploy** `farmazed-tracker` with v2 code (service already exists — update only) | 15 min | ✅ DONE (2026-08-25) — revision farmazed-tracker-00002-nfc live, v2.0.0 confirmed via /health. Old fz-admin-2026 fallback key confirmed rejected. |
+| T4.5 | Seed pricing data into Firestore | 5 min | ✅ DONE (2026-08-25) — 13 categories confirmed live via /api/admin/pricing. Note: tracker/node_modules was corrupted (missing files in firebase-admin, whatwg-url) — fixed with a clean `rm -rf node_modules && npm install`. package-lock.json now committed to prevent recurrence. |
+| T5 | First admin user (Firebase UID → POST /api/admin/set-role) | 5 min | ⏳ PENDING — next up |
 | T6 | Add /portal/ and /admin/ to nginx.conf + redeploy farmazed-web | 20 min | ⏳ PENDING |
 | T7 | End-to-end verification (health, auth, case wizard, GCS upload, admin panel, Cowork modal) | 15 min | ⏳ PENDING |
 | T8 | MCP plugin in Cowork (per team member) | 5 min/person | ⏳ PENDING |
