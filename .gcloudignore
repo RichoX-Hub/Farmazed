@@ -1,0 +1,12 @@
+.gcloudignore
+.git
+.gitignore
+node_modules
+*.env
+!.env.example
+
+# Only farmazed-web/, nginx.conf, and Dockerfile are needed for this image
+tracker/
+References/
+sessions/
+*.md

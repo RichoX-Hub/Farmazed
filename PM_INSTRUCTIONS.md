@@ -352,8 +352,8 @@ All code is written, bug-fixed, and syntactically valid. Developer work is integ
 | T4 | **Redeploy** `farmazed-tracker` with v2 code (service already exists — update only) | 15 min | ✅ DONE (2026-08-25) — revision farmazed-tracker-00002-nfc live, v2.0.0 confirmed via /health. Old fz-admin-2026 fallback key confirmed rejected. |
 | T4.5 | Seed pricing data into Firestore | 5 min | ✅ DONE (2026-08-25) — 13 categories confirmed live via /api/admin/pricing. Note: tracker/node_modules was corrupted (missing files in firebase-admin, whatwg-url) — fixed with a clean `rm -rf node_modules && npm install`. package-lock.json now committed to prevent recurrence. |
 | T5 | First admin user (Firebase UID → POST /api/admin/set-role) | 5 min | ✅ DONE (2026-08-25) — admin claim set via API, confirmed {"admin":true,"updated":true}. Note: claim applies on next token refresh/re-login. |
-| T6 | Add /portal/ and /admin/ to nginx.conf + redeploy farmazed-web | 20 min | ⏳ PENDING — next up |
-| T7 | End-to-end verification (health, auth, case wizard, GCS upload, admin panel, Cowork modal) | 15 min | ⏳ PENDING |
+| T6 | Add /portal/ and /admin/ to nginx.conf + redeploy farmazed-web | 20 min | ✅ DONE (2026-08-25) — nginx.conf updated, farmazed-web-00015-nxj live. /portal/login.html, /admin/casos.html, /admin/precios.html all confirmed 200. Deploy note below. |
+| T7 | End-to-end verification (health, auth, case wizard, GCS upload, admin panel, Cowork modal) | 15 min | ⏳ PENDING — next up |
 | T8 | MCP plugin in Cowork (per team member) | 5 min/person | ⏳ PENDING |
 
 > **Deploy commands** are in `DEPLOY.md`. Use Google Cloud Shell — local gcloud auth does not work on this machine.
@@ -509,6 +509,10 @@ These bugs were found during code audit and fixed. Files are in `Proyecto Farmaz
 - `repo/nginx.conf` — missing `/portal/` and `/admin/` location blocks → those routes fell through to the marketing site catch-all. Fixed in `repo\nginx.conf` directly.
 
 ---
+
+## Deploy Notes
+
+- **`gcloud run deploy --source .` failed for `farmazed-web`** with `ContainerImageImportFailed` ("Container import failed"), twice, including on retry from the same already-built image — no further detail in Cloud Logging beyond that message. This path builds via the newer regional Artifact Registry (`us-central1-docker.pkg.dev/.../cloud-run-source-deploy`). Switching to the classic two-step method (`gcloud builds submit --tag gcr.io/farmazed/farmazed-web` then `gcloud run deploy --image gcr.io/farmazed/farmazed-web ...`) — the same method already used for `farmazed-tracker` — worked immediately with no changes to the Dockerfile or source. Root cause undetermined; **use the `gcr.io` two-step method for any future `farmazed-web` redeploys** rather than `--source .`.
 
 ## Known Technical Debt (Non-urgent)
 
