@@ -77,7 +77,7 @@ const COS_DOCS = [
   { id: 'cos_otros',         faddiCode: '11.6', name: 'Otros Documentos Aclaratorios',                required: false, condition: 'Cuando aplique', faddiStep: 11, description: 'Cualquier documento adicional que respalde la solicitud.' },
   { id: 'cos_muestra',       faddiCode: '11.7', name: 'Foto de la Muestra Física',                    required: true,  condition: null, faddiStep: 11, description: 'Fotografía del producto en su envase comercial.' },
   { id: 'cos_refrendo',      faddiCode: '10.7', name: 'Refrendo del Colegio Nacional de Farmacéuticos', required: true, condition: null, faddiStep: 10, description: 'Comprobante del refrendo del farmacéutico responsable (D.E. 178/2001).' },
-  { id: 'cos_clv',           faddiCode: 'EXTRA', name: 'Certificado de Libre Venta (CLV)',            required: true,  condition: null, faddiStep: 11, description: 'CLV del país de fabricación apostillado o legalizado. No está en la lista de adjuntos de FADDI pero es requisito del RTCA 71.03.35:21 — presentar en ventanilla.' },
+  { id: 'cos_clv',           faddiCode: 'EXTRA', name: 'Certificado de Libre Venta (CLV)',            required: true,  condition: null, faddiStep: 11, description: 'CLV del país de fabricación apostillado o legalizado. No está en la lista de adjuntos de FADDI pero es requisito del RTCA 71.03.35:21 — presentar en ventanilla.', physicalOnly: true },
 ];
 
 // ─── HIGIÉNICOS / DESINFECTANTES / ANTISÉPTICOS ────────────────────────────────

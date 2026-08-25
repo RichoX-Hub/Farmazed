@@ -287,7 +287,10 @@ function renderDocCard(doc) {
   const badge    = { pending: 'secondary', uploaded: 'success', approved: 'success', rejected: 'danger', requested: 'warning' };
   // FADDI doesn't have an upload slot for this doc — client must present it
   // physically at DNFD (e.g. the CLV for cosméticos, per RTCA 71.03.35:21).
-  const isPhysicalOnly = doc.faddiCode === 'EXTRA';
+  // NOTE: faddiCode 'EXTRA' alone isn't a reliable signal — it's also used
+  // for docs that need prior arrangement but ARE still uploaded once
+  // obtained (e.g. hig_cotizacion). physicalOnly is the explicit marker.
+  const isPhysicalOnly = doc.physicalOnly === true;
 
   return `
     <div class="doc-card card mb-2 border-0 shadow-sm" id="doc-${doc.id}">
