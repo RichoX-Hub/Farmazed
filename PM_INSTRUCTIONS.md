@@ -1,7 +1,7 @@
 # FARMAZED — Sistema de Gestión de Expedientes Regulatorios
 ## Project Management Instructions
 **Role:** This file is maintained exclusively by Claude (acting as Project Manager).
-**Last updated:** 2026-08-08
+**Last updated:** 2026-08-25
 
 ---
 
@@ -65,54 +65,38 @@ api.farmazed.com          ← farmazed-api (NOT YET DEPLOYED — needs Cloud Run
 api.farmazed.com/mcp      ← MCP server for Claude Cowork
 ```
 
-### File layout (current)
+### ⚠️ Two-Folder Architecture (Critical — Discovered 2026-08-25)
+
+The project lives in **two separate folders** on the developer's machine. This is the current blocking issue for deployment:
 
 ```
-Proyecto Farmazetd Regulatory/
-├── PM_INSTRUCTIONS.md         ← This file (PM only — do not modify)
-├── handover.md                ← PM → Developer handover document
-├── sessions/                  ← Developer session logs (one .md per day)
-├── FADDI_platform_knowledge.md← FADDI platform reference (33KB)
-├── DEPLOY.md                  ← GCP/Docker deployment guide
-├── Dockerfile                 ← nginx:alpine, serves farmazed-web/
-├── nginx.conf                 ← serves farmazed-web/ at /
-├── docker-compose.yml         ← local dev port 8092
-├── References/
-│   ├── FADDI CREDENTIALS.txt  ← ⚠️ FADDI login — handle securely
-│   ├── Frontend Farmazed/
-│   │   ├── Clientdashboard.md (10KB) — design specs for client dashboard
-│   │   └── Maindasboard.md (18KB) — design specs for admin dashboard
-│   └── Regulaciones/
-├── farmazed-web/              ← Full website (live at farmazed.com)
-│   ├── index.html, blog.html, nosotros.html, contacto.html, testimonios.html
-│   ├── Propuesta_Farmazed_2026.html
-│   ├── client-dashboard.html  (73KB — large standalone; review vs portal/dashboard.html)
-│   ├── css/, js/, src/
-│   ├── portal/                ← CLIENT PORTAL (code complete, not deployed)
-│   │   ├── login.html
-│   │   ├── dashboard.html
-│   │   ├── nuevo.html         ← 5-step case creation wizard
-│   │   └── js/
-│   │       ├── config.js      ← ⚠️ NEEDS Firebase config (REPLACE_WITH_* values)
-│   │       ├── auth.js
-│   │       ├── api.js
-│   │       └── wizard.js      ← Complete wizard logic (19KB)
-│   └── admin/                 ← ADMIN PANEL (code complete, not deployed)
-│       ├── casos.html         ← Case list with filters/stats
-│       └── expediente.html    ← Case detail: FADDI-step view + Cowork modal
-└── tracker/                   ← BACKEND API (code complete, not deployed)
-    ├── index.js               ← Express server
-    ├── package.json           ← v2.0.0
-    ├── Dockerfile
-    ├── middleware/auth.js
-    ├── services/storage.js
-    ├── routes/
-    │   ├── cases.js
-    │   ├── documents.js
-    │   └── mcp.js             ← 7 MCP tools for Cowork
-    └── data/
-        └── faddi_checklists.js← Dynamic checklists for all 6 tramite types
+C:\Users\richy\Desktop\Programas en PYTON\Farmazed\
+
+├── repo\                        ← THE ACTUAL GITHUB REPO (= what deploys to Cloud Run)
+│   ├── .git/                    ← Only this folder is version-controlled
+│   ├── tracker\index.js         ← ⚠️ OUTDATED (v1, QR-only, 64 lines)
+│   ├── farmazed-web\            ← Marketing site only (no portal/, no admin/)
+│   ├── nginx.conf               ← Basic (no /portal/, no /admin/ routes)
+│   └── Dockerfile               ← nginx:alpine for farmazed-web
+│
+└── Proyecto Farmazetd Regulatory\  ← THE DEVELOPER'S WORKING FOLDER (NOT in git)
+    ├── PM_INSTRUCTIONS.md       ← This file
+    ├── handover.md
+    ├── sessions/
+    ├── tracker\                 ← ✅ Full v2 API (complete, not in repo yet)
+    │   ├── index.js             ← v2.0.0, 99 lines, Firebase Admin + all routers
+    │   ├── middleware/auth.js
+    │   ├── services/storage.js
+    │   ├── routes/cases.js
+    │   ├── routes/documents.js
+    │   ├── routes/mcp.js        ← 7 MCP tools
+    │   └── data/faddi_checklists.js
+    └── farmazed-web\
+        ├── portal\              ← ✅ Client portal (complete, not in repo yet)
+        └── admin\               ← ✅ Admin panel (complete, not in repo yet)
 ```
+
+**Consequence:** Before any GCP work, the developer must run Touchpoint 0 (copy all new code from `Proyecto Farmazetd Regulatory\` into `repo\` and commit to GitHub). See `handover.md` for the exact PowerShell commands.
 
 ---
 
@@ -185,6 +169,7 @@ qr_scans/                       ← Legacy QR tracking collection
 | GET | /api/cases/:id/documents/:docId | Bearer | Get doc metadata + signed URL |
 | PATCH | /api/cases/:id/documents/:docId | Bearer + admin | Review doc (approve/reject) |
 | DELETE | /api/cases/:id/documents/:docId | Bearer | Delete document |
+| POST | /api/cases/:id/documents/request | Bearer + admin | Request missing doc from client |
 | GET | /mcp | MCP_KEY | MCP server info (tool list) |
 | POST | /mcp | MCP_KEY | MCP JSON-RPC (tools/list, tools/call) |
 
@@ -243,9 +228,10 @@ Documents required per tramiteType (totals are for base + applicable conditional
 | Component | Status | Notes |
 |---|---|---|
 | farmazed.com (marketing site) | ✅ LIVE | farmazed-web Cloud Run service |
-| tracker/ (backend API) | ❌ NOT DEPLOYED | Needs 7 GCP touchpoints |
-| portal/ (client portal) | ❌ NOT DEPLOYED | Needs Firebase config + nginx update |
-| admin/ (admin panel) | ❌ NOT DEPLOYED | Needs nginx update |
+| repo\ (GitHub) | ⚠️ OUTDATED | Only has QR tracker v1. Must run T0 first. |
+| tracker/ (backend API) | ❌ NOT DEPLOYED | Blocked on T0 (repo integration) |
+| portal/ (client portal) | ❌ NOT DEPLOYED | Blocked on T0 + Firebase config |
+| admin/ (admin panel) | ❌ NOT DEPLOYED | Blocked on T0 + nginx update |
 
 ---
 
@@ -253,20 +239,22 @@ Documents required per tramiteType (totals are for base + applicable conditional
 
 ### Phase 2 — Deployment (CURRENT PRIORITY)
 
-All code is written and syntactically valid. Developer work is configuration only (~3 hours).
+All code is written, bug-fixed, and syntactically valid. Developer work is integration + configuration (~4 hours total).
 
 | # | Touchpoint | Estimated time | Status |
 |---|---|---|---|
+| **T0** | **Integrate code into repo** (copy Proyecto Farmazetd Regulatory\ → repo\, commit to GitHub) | **30–45 min** | **⚠️ DO FIRST — BLOCKER** |
 | T1 | Firebase project setup + fill `portal/js/config.js` | 1–2 h | ⏳ PENDING |
 | T2 | GCS bucket "farmazed-docs" + CORS config | 30 min | ⏳ PENDING |
 | T3 | Service Account "farmazed-api-sa" (Firestore + Storage + Firebase Auth roles) | 20 min | ⏳ PENDING |
-| T4 | Cloud Run env vars: GCS_BUCKET, ADMIN_KEY, MCP_KEY, REDIRECT_URL | 15 min | ⏳ PENDING |
+| T4 | Deploy tracker/ → api.farmazed.com (Cloud Run + domain mapping) | 30 min | ⏳ PENDING |
 | T5 | First admin user (Firebase UID → POST /api/admin/set-role) | 5 min | ⏳ PENDING |
-| T6 | Deploy tracker/ → api.farmazed.com (Cloud Run + domain mapping) | 30 min | ⏳ PENDING |
-| T7 | Add /portal/ and /admin/ to nginx.conf + redeploy farmazed-web | 20 min | ⏳ PENDING |
+| T6 | Add /portal/ and /admin/ to nginx.conf + redeploy farmazed-web | 20 min | ⏳ PENDING |
+| T7 | End-to-end verification (health, auth, case wizard, GCS upload, admin panel, Cowork modal) | 15 min | ⏳ PENDING |
 | T8 | MCP plugin in Cowork (per team member) | 5 min/person | ⏳ PENDING |
 
 > **Deploy commands** are in `DEPLOY.md`. Use Google Cloud Shell — local gcloud auth does not work on this machine.
+> **T0 PowerShell commands** are in `handover.md` under TOUCHPOINT 0.
 
 ### Phase 3 — Post-Deployment Hardening
 
@@ -337,6 +325,31 @@ publicidad:   sisregsan.minsa.gob.pa/forms/user/publicidad/registrar.aspx
 | D3 | Checklist documental | Dinámico según tramiteType + tipoRegistro + tipoMedicamento | May 2026 |
 | D4 | Integración Cowork | MCP server propio en /mcp + modal "Abrir en Cowork" en admin panel | May 2026 |
 | D5 | PM scheme | Replicar esquema Henrietta PG: PM_INSTRUCTIONS.md + handover.md + sessions/ | Aug 2026 |
+| D6 | Repo integration strategy | Developer's new code lives in `Proyecto Farmazetd Regulatory\` (not git). Must copy into `repo\` via PowerShell (Touchpoint 0) before any GCP deployment. Commands documented in handover.md. | Aug 2026 |
+
+---
+
+## Known Bugs Fixed (Session 08-ago-2026)
+
+The following bugs were found in a multi-angle code review and fixed. All fixes are already applied in `Proyecto Farmazetd Regulatory\` and will reach `repo\` automatically when Touchpoint 0 is executed.
+
+- `cases.js` — wizard submit stayed `draft` forever (missing `status` in `CLIENT_FIELDS`)
+- `cases.js` — `productName` never computed in `GET /cases` → "(sin nombre)" in all case cards
+- `cases.js` + `faddi_checklists.js` — invalid `tramiteType` produced `NaN%` progress bars
+- `middleware/auth.js` + `index.js` — hardcoded fallback keys (`fz-mcp-2026`, `fz-admin-2026`) in public repo; removed
+- `documents.js` — missing `POST /:caseId/documents/request` REST endpoint (only existed as MCP tool)
+- `admin/expediente.html` — "Solicitar documento" button called fetch with no auth header and nonexistent route; fixed
+- `portal/dashboard.html` — case card links went to `/portal/expediente.html` (404); repointed to wizard with `?caseId=`
+- `portal/js/wizard.js` — upload listener re-attached on every refresh → duplicate uploads; fixed with one-time guard
+- `tracker/Dockerfile` — no `.dockerignore` → Windows `node_modules` would clobber Linux build; added `.dockerignore`
+
+## Known Technical Debt (Non-urgent)
+
+- Ownership check duplicated 3–4× across `cases.js`/`documents.js` instead of centralized middleware — no active bug, latent risk
+- `express-validator` declared in `package.json` but never used
+- `tramiteType` → icon/URL lookup tables duplicated in `wizard.js`, `dashboard.html`, `casos.html`, and `mcp.js`
+- `client-dashboard.html` (73KB in `farmazed-web/` root) needs review vs `portal/dashboard.html` for overlap
+- Design spec (`References/Frontend Farmazed/Maindasboard.md`) describes richer dashboard than implemented — needs decision: build toward spec or update spec to match reality
 
 ---
 
