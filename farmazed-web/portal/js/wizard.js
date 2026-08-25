@@ -281,27 +281,33 @@ function renderDocGroup(title, docs, collapsed = false) {
 }
 
 function renderDocCard(doc) {
-  const up     = state.uploads[doc.id];
-  const status = up?.status || (doc.uploaded ? 'uploaded' : 'pending');
-  const icons  = { pending: '⬜', pending_upload: '📤', uploaded: '✅', approved: '✅', rejected: '❌', requested: '🔔' };
-  const badge  = { pending: 'secondary', uploaded: 'success', approved: 'success', rejected: 'danger', requested: 'warning' };
+  const up       = state.uploads[doc.id];
+  const status   = up?.status || (doc.uploaded ? 'uploaded' : 'pending');
+  const icons    = { pending: '⬜', pending_upload: '📤', uploaded: '✅', approved: '✅', rejected: '❌', requested: '🔔' };
+  const badge    = { pending: 'secondary', uploaded: 'success', approved: 'success', rejected: 'danger', requested: 'warning' };
+  // FADDI doesn't have an upload slot for this doc — client must present it
+  // physically at DNFD (e.g. the CLV for cosméticos, per RTCA 71.03.35:21).
+  const isPhysicalOnly = doc.faddiCode === 'EXTRA';
 
   return `
     <div class="doc-card card mb-2 border-0 shadow-sm" id="doc-${doc.id}">
       <div class="card-body py-2 px-3 d-flex align-items-start gap-3">
-        <div class="doc-status-icon fs-5 mt-1">${icons[status] || '⬜'}</div>
+        <div class="doc-status-icon fs-5 mt-1">${isPhysicalOnly ? '📍' : (icons[status] || '⬜')}</div>
         <div class="flex-grow-1">
           <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="fw-semibold small">${doc.faddiCode} — ${doc.name}</span>
             ${doc.required ? '<span class="badge bg-danger-subtle text-danger border border-danger-subtle small">Obligatorio</span>' : '<span class="badge bg-secondary-subtle text-secondary border small">Opcional</span>'}
-            <span class="badge bg-${badge[status] || 'secondary'} small">${status}</span>
+            ${!isPhysicalOnly ? `<span class="badge bg-${badge[status] || 'secondary'} small">${status}</span>` : ''}
           </div>
           <div class="text-muted small mt-1">${doc.description}</div>
           ${up?.file ? `<div class="small text-success mt-1">📎 ${up.file.name}</div>` : ''}
           ${doc.condition ? `<div class="small text-warning-emphasis mt-1">⚡ ${doc.condition}</div>` : ''}
+          ${isPhysicalOnly ? `<div class="small text-info mt-1">📍 Este documento se presenta físicamente en DNFD, no se carga en FADDI. Farmazed coordinará la entrega.</div>` : ''}
         </div>
         <div class="doc-upload-action" style="min-width:120px">
-          ${status === 'uploaded' || status === 'approved'
+          ${isPhysicalOnly
+            ? '<span class="badge bg-info-subtle text-info border border-info-subtle small">Presencial</span>'
+            : status === 'uploaded' || status === 'approved'
             ? '<span class="text-success small">✓ Subido</span>'
             : `<label class="btn btn-sm btn-outline-primary" style="cursor:pointer">
                  <input type="file" class="d-none" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" data-docid="${doc.id}">
