@@ -32,6 +32,9 @@ const TRAMITES = [
 ];
 
 const TIPOS_REGISTRO = ['Regular', 'Abreviado', 'Reconocimiento Mutuo', 'Reconocimiento WLA'];
+// These two have no differentiated flow in the wizard yet — the client is
+// directed to contact Farmazed directly instead of continuing.
+const TIPOS_REGISTRO_SIN_FLUJO = ['Reconocimiento Mutuo', 'Reconocimiento WLA'];
 const TIPOS_MED = [
   'Síntesis Química', 'Biotecnológicos', 'Homeopáticos', 'Huérfanos',
   'Radiofármacos', 'Biológicos', 'Suplemento Con Propiedad Terapéutica',
@@ -114,7 +117,14 @@ function renderStep1() {
   if (tipoRegSelect) {
     tipoRegSelect.innerHTML = TIPOS_REGISTRO.map(t => `<option value="${t}">${t}</option>`).join('');
     tipoRegSelect.value = state.data.tipoRegistro;
-    tipoRegSelect.addEventListener('change', () => { state.data.tipoRegistro = tipoRegSelect.value; });
+    const syncContactenos = () => {
+      $('#tipo-registro-contactenos')?.classList.toggle('d-none', !TIPOS_REGISTRO_SIN_FLUJO.includes(tipoRegSelect.value));
+    };
+    syncContactenos();
+    tipoRegSelect.addEventListener('change', () => {
+      state.data.tipoRegistro = tipoRegSelect.value;
+      syncContactenos();
+    });
   }
 }
 
@@ -174,6 +184,12 @@ function renderStep2() {
     const el = $(`#${f}`);
     if (el && state.data.product[f]) el.value = state.data.product[f];
   });
+
+  // Restore tipoPresentacion radio (defaults to Comercial via the HTML's checked attr)
+  if (state.data.product.tipoPresentacion) {
+    const radio = $(`input[name=tipoPresentacion][value="${state.data.product.tipoPresentacion}"]`);
+    if (radio) radio.checked = true;
+  }
 }
 
 function collectStep2() {
@@ -376,6 +392,10 @@ async function nextStep() {
   try {
     if (state.step === 1) {
       if (!state.data.tramiteType) { toast('Selecciona el tipo de trámite.', 'warning'); return; }
+      if (state.data.tramiteType === 'medicamentos' && TIPOS_REGISTRO_SIN_FLUJO.includes(state.data.tipoRegistro)) {
+        toast('Este tipo de trámite requiere gestión personalizada. Contáctenos directamente.', 'warning');
+        return;
+      }
       // Create case in Firestore
       if (!state.caseId) {
         const res = await api.createCase({

@@ -80,6 +80,9 @@
             <div class="form-text">Abreviado requiere aprobación ARR (FDA, EMA, INVIMA, etc.)</div>
           </div>
         </div>
+        <div class="alert alert-info d-none mt-3" id="tipo-registro-contactenos">
+          📞 Este tipo de trámite requiere gestión personalizada. Contáctenos directamente y un especialista de Farmazed te guiará.
+        </div>
       </div>
 
       <div class="alert alert-warning d-none mt-4" id="excepcion-disclaimer">
@@ -144,6 +147,21 @@
         <div class="col-12 d-none" data-tramites="medicamentos,cosmeticos,higienicos,plaguicidas,excepcion">
           <label class="form-label small fw-semibold">Presentación del Producto</label>
           <input type="text" class="form-control" id="descripcionPresentacion" placeholder="Ej: CAJA CON 30 TABLETAS RECUBIERTAS">
+        </div>
+        <div class="col-12 d-none" data-tramites="medicamentos">
+          <label class="form-label small fw-semibold d-block mb-2">Tipo de Presentación <span class="text-danger">*</span></label>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="tipoPresentacion" value="Comercial" id="tp-comercial" checked>
+            <label class="form-check-label" for="tp-comercial">Comercial</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="tipoPresentacion" value="Muestra Médica" id="tp-muestra">
+            <label class="form-check-label" for="tp-muestra">Muestra Médica</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="tipoPresentacion" value="Hospitalaria" id="tp-hospitalaria">
+            <label class="form-check-label" for="tp-hospitalaria">Hospitalaria</label>
+          </div>
         </div>
         <div class="col-12 d-none" data-tramites="medicamentos">
           <label class="form-label small fw-semibold d-block mb-2">Tipo de Medicamento <span class="text-danger">*</span></label>
