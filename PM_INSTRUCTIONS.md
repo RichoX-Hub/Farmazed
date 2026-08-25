@@ -346,8 +346,8 @@ All code is written, bug-fixed, and syntactically valid. Developer work is integ
 | # | Touchpoint | Estimated time | Status |
 |---|---|---|---|
 | **T0** | ~~Integrate code into repo~~ **✅ DONE** — code was pushed to `origin/main` directly from `Proyecto Farmazetd Regulatory\` in a prior session (not via the `repo\` copy procedure). Pricing feature (routes/pricing.js, seed_pricing.js, precios.html) committed + pushed 2026-08-25. | — | ✅ DONE |
-| T1 | Firebase project setup + fill `portal/js/config.js` | 1–2 h | ⏳ PENDING |
-| T2 | GCS bucket "farmazed-docs" + CORS config | 30 min | ⏳ PENDING |
+| T1 | Firebase project setup + fill `portal/js/config.js` | 1–2 h | ✅ DONE (2026-08-25) — Auth enabled, Firestore created (us-central1, Native mode), web app registered, config.js pushed |
+| T2 | GCS bucket "farmazed-docs" + CORS config | 30 min | ⏳ PENDING — next up |
 | T3 | Service Account (Firestore + Storage + Firebase Auth roles) | 20 min | ⏳ PENDING |
 | T4 | **Redeploy** `farmazed-tracker` with v2 code (service already exists — update only) | 15 min | ⏳ PENDING (blocked on T0) |
 | T5 | First admin user (Firebase UID → POST /api/admin/set-role) | 5 min | ⏳ PENDING |
