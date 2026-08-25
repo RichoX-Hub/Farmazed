@@ -132,17 +132,34 @@
           <label class="form-label small fw-semibold">Forma Cosmética</label>
           <input type="text" class="form-control" id="formaCosmetica" placeholder="Ej: SHAMPOO / CHAMPÚ">
         </div>
-        <div class="col-12">
+        <div class="col-12" data-hide-pub>
           <label class="form-label small fw-semibold">Descripción del Envase</label>
           <input type="text" class="form-control" id="descripcionEnvase" placeholder="Ej: FRASCO DE 250 ML">
         </div>
-        <div class="col-12">
+        <div class="col-12" data-hide-pub>
           <label class="form-label small fw-semibold">Presentación del Producto</label>
           <input type="text" class="form-control" id="descripcionPresentacion" placeholder="Ej: CAJA CON 30 TABLETAS RECUBIERTAS">
         </div>
         <div class="col-12 d-none" data-only-med>
           <label class="form-label small fw-semibold d-block mb-2">Tipo de Medicamento <span class="text-danger">*</span></label>
           <div id="tipo-med-checks"></div>
+        </div>
+        <div class="col-md-6 d-none" data-only-pub>
+          <label class="form-label small fw-semibold">N° de Registro Sanitario del producto <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="numeroRegistroSanitario" placeholder="Ej: RS-12345">
+          <div class="form-text">La publicidad debe corresponder a un producto ya registrado.</div>
+        </div>
+        <div class="col-md-6 d-none" data-only-pub>
+          <label class="form-label small fw-semibold">Código de la Publicidad</label>
+          <input type="text" class="form-control" id="codigoPublicidad" placeholder="Código interno del material, si aplica">
+        </div>
+        <div class="col-12 d-none" data-only-pub>
+          <label class="form-label small fw-semibold d-block mb-2">Tipo de Publicidad <span class="text-danger">*</span></label>
+          <div id="tipo-pub-checks"></div>
+        </div>
+        <div class="col-12 d-none" data-only-pub>
+          <label class="form-label small fw-semibold">Descripción breve del material <span class="text-danger">*</span></label>
+          <textarea class="form-control" id="descripcionMaterial" rows="2" placeholder="Ej: Spot de radio de 30 segundos para campaña de lanzamiento."></textarea>
         </div>
       </div>
     </div>

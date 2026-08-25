@@ -539,9 +539,11 @@ These bugs were found during code audit and fixed. Files are in `Proyecto Farmaz
 - Never modify files in `repo\` or `Proyecto Farmazetd Regulatory\tracker\` or `\farmazed-web\`.
 
 **File authority:**
-- `PM_INSTRUCTIONS.md` — PM maintains this exclusively. It is the authoritative project state.
-- `handover.md` — PM rewrites this before every development session with exact current state and next steps.
+- `PM_INSTRUCTIONS.md` — PM maintains this exclusively. It is the authoritative project state and permanent rules. Only the PM edits this file.
+- `handover.md` — Shared communication channel between PM and developer. Both parties can leave instructions, bugs, comments, and status updates here. The PM uses this file for ALL orders, bugs, and observations directed at the developer — **no separate .md files are created per issue**. Every bug, UX observation, or developer instruction goes into `handover.md` directly.
 - `sessions/YYYY-MM-DD.md` — PM creates at end of every session (or start if catching up).
+- `process_map.md` — PM-maintained reference of all 6 wizard paths, documents per path, and user journey. Update when regulatory requirements change.
+- `dev_build_order.md` — PM-maintained development sequence. Update when priorities shift.
 - All other files → developer only.
 
 **Process rules:**

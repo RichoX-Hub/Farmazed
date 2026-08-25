@@ -386,6 +386,150 @@ Para cada miembro del equipo Farmazed que use Claude Cowork:
 
 ---
 
+## Observaciones PM — Sesión 2026-08-25 (wizard en local)
+
+> PM revisó el wizard corriendo en localhost. Anotar y resolver antes de siguiente deploy.
+
+---
+
+### BUG CRÍTICO — GET /api/cases/:id/documents → 500 Internal Server Error
+
+**Síntoma:** Consola del navegador muestra dos veces:
+```
+Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+GET :8080/api/cases/<caseId>/documents
+```
+
+**Impacto:** El Paso 4 (Carga Documental) no carga el checklist. El wizard queda bloqueado — ningún cliente puede avanzar más allá del Paso 3.
+
+**Causa probable:** La ruta `GET /api/cases/:id/documents` no está implementada en el backend, o falla al consultar Firestore.
+
+**Fix requerido:** Verificar si la ruta existe:
+```bash
+grep -r "documents" tracker/routes/
+grep -r "checklist" tracker/routes/
+```
+Si no existe, implementarla. El endpoint debe:
+1. Leer el caso desde Firestore por `caseId`
+2. Extraer `tramiteType`, `tipoRegistro`, `tipoMedicamento`
+3. Llamar a `getChecklist(tramiteType, { tipoRegistro, tipoMedicamento })` de `faddi_checklists.js`
+4. Devolver `{ ok: true, documents: checklist }`
+
+Ejemplo mínimo:
+```javascript
+const { getChecklist } = require('../data/faddi_checklists');
+
+router.get('/api/cases/:caseId/documents', requireAuth, async (req, res) => {
+  try {
+    const snap = await db.collection('cases').doc(req.params.caseId).get();
+    if (!snap.exists) return res.status(404).json({ error: 'Case not found' });
+    const data = snap.data();
+    const checklist = getChecklist(data.tramiteType, {
+      tipoRegistro:    data.tipoRegistro    || 'Regular',
+      tipoMedicamento: data.tipoMedicamento || [],
+    });
+    res.json({ ok: true, documents: checklist });
+  } catch (err) {
+    console.error('GET /api/cases/:caseId/documents error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+```
+
+---
+
+### UX — Paso 2 "Datos del Producto": campos libres que deben ser dropdowns
+
+**Principio:** Solo dejar campo de texto libre cuando el valor es único por producto (nombre propio). Todo campo con catálogo finito de valores válidos → dropdown. Cuando el valor de un campo determina las opciones del siguiente → campos en cascada.
+
+#### Bug de etiqueta
+El campo "Forma Farmacéutica" aparece etiquetado como **"Forma Cosmética"** incluso en trámites de medicamentos. El label debe ser dinámico según `tramiteType`:
+- `medicamentos` → "Forma Farmacéutica"
+- `cosmeticos` → "Forma Cosmética"
+- `higienicos` / `plaguicidas` → "Forma de Presentación"
+
+#### Campos faltantes en pantalla actual
+Comparando con los 12 campos requeridos por el proceso regulatorio, faltan:
+
+| Campo | Tipo |
+|---|---|
+| Principio Activo | Texto libre |
+| Concentración | Número libre + dropdown de unidad (mg / mg/mL / % / UI / mcg / g) |
+| Vía de Administración | Dropdown — filtrado por Forma Farmacéutica |
+| Condición de Venta | Dropdown |
+| Código ATC | Texto libre (opcional) |
+| Vida Útil | Dropdown |
+| Condiciones de Almacenamiento | Dropdown multi-selección |
+
+#### Campos actuales que deben convertirse a dropdown
+
+| Campo | Acción |
+|---|---|
+| Clasificación (muestra "Para el dolor" como texto libre) | → Dropdown: Grupo Terapéutico |
+| Forma Farmacéutica / "Forma Cosmética" | → Dropdown + activa cascada hacia Vía de Administración |
+| Descripción del Envase | → Dropdown |
+| Presentación del Producto | → Campo compuesto: cantidad (número) + unidad (dropdown) |
+
+#### Lógica de cascada recomendada
+Los campos se habilitan en secuencia. Forma Farmacéutica filtra las opciones de Vía de Administración:
+```
+Tableta / Cápsula / Jarabe / Suspensión Oral  →  Vía: Oral
+Tableta Sublingual                             →  Vía: Sublingual
+Solución Inyectable / Polvo para Inyectable   →  Vía: IV / IM / SC
+Crema / Gel / Parche                          →  Vía: Tópica / Transdérmica
+Aerosol / Polvo para Inhalación               →  Vía: Inhalatoria
+Supositorio                                   →  Vía: Rectal
+Óvulo / Crema Vaginal                         →  Vía: Vaginal
+Colirio                                       →  Vía: Oftálmica
+```
+
+#### Catálogos completos
+
+**Forma Farmacéutica:**
+Tableta, Tableta Recubierta, Tableta de Liberación Prolongada, Cápsula, Cápsula de Gelatina Blanda, Polvo para Suspensión Oral, Granulado, Comprimido Masticable, Jarabe, Solución Oral, Suspensión Oral, Gotas Orales, Solución Inyectable, Polvo para Solución Inyectable, Suspensión Inyectable, Concentrado para Infusión, Crema, Ungüento, Gel, Loción, Solución Tópica, Parche Transdérmico, Aerosol para Inhalación, Polvo para Inhalación, Solución para Nebulización, Supositorio, Óvulo, Crema Vaginal, Colirio, Ungüento Oftálmico, Gotas Óticas, Implante, Película Oral
+
+**Condición de Venta:**
+Con Receta Médica, Sin Receta Médica (OTC), Uso Hospitalario, Producto Controlado
+
+**Descripción del Envase:**
+Frasco de Vidrio, Frasco Plástico (HDPE), Frasco Plástico (PET), Frasco Gotero, Ampolla, Vial, Caja (con blister), Blister, Strip, Tubo (Aluminio), Tubo (Plástico), Sachet/Sobre, Jeringa Precargada, Bolsa para Infusión, Tarro, Lata, Aerosol
+
+**Unidades de Concentración:**
+mg, mg/mL, mg/5mL, g, g/100mL, %, UI, mcg, mcg/mL, mEq/mL, mg/g
+
+**Vida Útil:**
+12 meses, 18 meses, 24 meses, 30 meses, 36 meses, 48 meses, 60 meses
+
+**Condiciones de Almacenamiento (multi-selección):**
+Temperatura ambiente (15–30°C), Refrigerar (2–8°C), Congelar (≤–20°C), Proteger de la luz, Proteger de la humedad, No requiere condiciones especiales
+
+**Grupo Terapéutico:**
+Sistema Nervioso Central, Sistema Cardiovascular, Sistema Respiratorio, Sistema Digestivo y Metabolismo, Antiinfecciosos, Sistema Musculoesquelético, Sistema Genitourinario y Hormonas Sexuales, Hormonas Sistémicas, Dermatológicos, Oftalmológicos y Otológicos, Antineoplásicos e Inmunomoduladores, Sistema Hematológico, Nutrición y Metabolismo, Diagnóstico y Contraste, Otros
+
+**Tipo de Presentación:**
+Unitaria, Múltiple, Institucional / Hospital
+
+---
+
+### Respuesta developer — BUG CRÍTICO 500 en /api/cases/:id/documents: NO reproducible
+
+> **Claude Code IDE, 2026-08-25:** Investigado antes de implementar el fix propuesto arriba, porque no coincidía con el código real: `GET /api/cases/:id/documents` (en `documents.js`) ya existe y es un endpoint distinto de `/api/cases/:id/checklist` (en `cases.js`) — que es el que `wizard.js` realmente llama en Paso 4 (confirmado por grep, `wizard.js` nunca llama a `/documents`).
+>
+> Probado end-to-end con un usuario y caso de prueba reales (token real vía Identity Toolkit, no simulado): `POST /api/cases` → `GET /api/cases/:id/checklist` → `GET /api/cases/:id/documents`. Los tres devuelven `200` con datos correctos. Cero errores en los logs del servidor local (corriendo toda la sesión).
+>
+> Hipótesis: el PM probablemente testeó contra el `node_modules` corrupto que esta sesión encontró y arregló más temprano (faltaban archivos internos de `firebase-admin` y `whatwg-url` — cualquier ruta que tocara Firestore habría lanzado 500 con esa corrupción). Ya resuelto vía `rm -rf node_modules && npm install` limpio + `package-lock.json` commiteado.
+>
+> No se implementó el fix propuesto (habría agregado una ruta duplicada con semántica incorrecta — mezclar checklist y documentos). Si el 500 reaparece con node_modules limpio, avisar con el caseId y el stack trace completo del servidor para diagnosticar el caso real.
+
+### Documentos de referencia del proceso (generados sesión 2026-08-25)
+
+| Archivo | Contenido |
+|---|---|
+| `process_map.md` | Mapa completo de las 6 rutas del wizard — decisiones, documentos por path, flujo paso a paso |
+| `dev_build_order.md` | Orden de desarrollo recomendado: 8 fases de menor a mayor complejidad, con criterios de aceptación por fase |
+
+---
+
 ## Deuda técnica conocida (no urgente)
 
 - Ownership-check duplicado en cases.js/documents.js

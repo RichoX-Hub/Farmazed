@@ -42,6 +42,9 @@ const CONDICION_VENTA = [
   'Con Prescripción Médica', 'Sin Prescripción Médica',
   'Venta Libre o Venta Popular', 'Con Prescripción Médica Controlada',
 ];
+const TIPOS_PUBLICIDAD = [
+  'Impresos', 'Audiovisuales', 'Cupones promocionales', 'Material Promocional', 'Otros',
+];
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 const $  = (sel, ctx = document) => ctx.querySelector(sel);
@@ -113,8 +116,11 @@ function renderStep1() {
 function renderStep2() {
   const isMed = state.data.tramiteType === 'medicamentos';
   const isCos = state.data.tramiteType === 'cosmeticos';
+  const isPub = state.data.tramiteType === 'publicidad';
   $$('[data-only-med]').forEach(el => el.classList.toggle('d-none', !isMed));
   $$('[data-only-cos]').forEach(el => el.classList.toggle('d-none', !isCos));
+  $$('[data-only-pub]').forEach(el => el.classList.toggle('d-none', !isPub));
+  $$('[data-hide-pub]').forEach(el => el.classList.toggle('d-none', isPub));
 
   // Tipo medicamento checkboxes
   const container = $('#tipo-med-checks');
@@ -130,6 +136,18 @@ function renderStep2() {
     });
   }
 
+  // Tipo publicidad checkboxes
+  const pubContainer = $('#tipo-pub-checks');
+  if (pubContainer && isPub) {
+    const selected = state.data.product.tipoPublicidad || [];
+    pubContainer.innerHTML = TIPOS_PUBLICIDAD.map(t => `
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" value="${t}" id="tp-${t.replace(/\s/g,'-')}"
+          ${selected.includes(t) ? 'checked' : ''}>
+        <label class="form-check-label" for="tp-${t.replace(/\s/g,'-')}">${t}</label>
+      </div>`).join('');
+  }
+
   // Condición de venta
   const condSelect = $('#condicionVenta');
   if (condSelect) {
@@ -141,7 +159,8 @@ function renderStep2() {
   const fields = ['nombreComercial','principioActivo','concentracion','formaFarmaceutica',
                   'viaAdministracion','codigoATC','descripcionEnvase','vidaUtil',
                   'condicionesAlmacenamiento','descripcionPresentacion','clasificacion',
-                  'variante','formaCosmetica'];
+                  'variante','formaCosmetica','numeroRegistroSanitario','codigoPublicidad',
+                  'descripcionMaterial'];
   fields.forEach(f => {
     const el = $(`#${f}`);
     if (el && state.data.product[f]) el.value = state.data.product[f];
@@ -152,7 +171,8 @@ function collectStep2() {
   const fields = ['nombreComercial','principioActivo','concentracion','formaFarmaceutica',
                   'viaAdministracion','condicionVenta','codigoATC','descripcionEnvase',
                   'vidaUtil','condicionesAlmacenamiento','descripcionPresentacion',
-                  'tipoPresentacion','clasificacion','variante','formaCosmetica'];
+                  'tipoPresentacion','clasificacion','variante','formaCosmetica',
+                  'numeroRegistroSanitario','codigoPublicidad','descripcionMaterial'];
   const product = {};
   fields.forEach(f => {
     const el = $(`#${f}`);
@@ -160,6 +180,10 @@ function collectStep2() {
   });
   const radios = $$('input[name=tipoPresentacion]:checked');
   if (radios.length) product.tipoPresentacion = radios[0].value;
+  const pubContainer = $('#tipo-pub-checks');
+  if (pubContainer) {
+    product.tipoPublicidad = $$('input[type=checkbox]:checked', pubContainer).map(cb => cb.value);
+  }
   state.data.product = product;
 }
 
