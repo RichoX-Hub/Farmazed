@@ -81,6 +81,11 @@
           </div>
         </div>
       </div>
+
+      <div class="alert alert-warning d-none mt-4" id="excepcion-disclaimer">
+        ⚠️ <strong>La Excepción de Registro es una autorización temporal para importar un lote específico.</strong>
+        NO otorga Registro Sanitario permanente.
+      </div>
     </div>
 
     <!-- ── STEP 2 ── -->
@@ -92,74 +97,86 @@
           <label class="form-label small fw-semibold">Nombre Comercial <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="nombreComercial" placeholder="Ej: Amoxicilina 500mg">
         </div>
-        <div class="col-md-6 d-none" data-only-med>
+        <div class="col-md-6 d-none" data-tramites="medicamentos,excepcion">
           <label class="form-label small fw-semibold">Principio Activo (DCI) <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="principioActivo" placeholder="Ej: Amoxicilina">
         </div>
-        <div class="col-md-4 d-none" data-only-med>
+        <div class="col-md-4 d-none" data-tramites="medicamentos">
           <label class="form-label small fw-semibold">Concentración <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="concentracion" placeholder="Ej: 500 mg">
         </div>
-        <div class="col-md-4 d-none" data-only-med>
+        <div class="col-md-4 d-none" data-tramites="medicamentos">
           <label class="form-label small fw-semibold">Forma Farmacéutica <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="formaFarmaceutica" placeholder="Ej: CÁPSULA">
         </div>
-        <div class="col-md-4 d-none" data-only-med>
+        <div class="col-md-4 d-none" data-tramites="medicamentos">
           <label class="form-label small fw-semibold">Vía de Administración <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="viaAdministracion" placeholder="Ej: ORAL">
         </div>
-        <div class="col-md-6 d-none" data-only-med>
+        <div class="col-md-6 d-none" data-tramites="medicamentos">
           <label class="form-label small fw-semibold">Condición de Venta <span class="text-danger">*</span></label>
           <select class="form-select" id="condicionVenta"></select>
         </div>
-        <div class="col-md-3 d-none" data-only-med>
+        <div class="col-md-3 d-none" data-tramites="medicamentos">
           <label class="form-label small fw-semibold">Código ATC</label>
           <input type="text" class="form-control" id="codigoATC" placeholder="Ej: J01CA04">
         </div>
-        <div class="col-md-3 d-none" data-only-med>
+        <div class="col-md-3 d-none" data-tramites="medicamentos">
           <label class="form-label small fw-semibold">Vida Útil</label>
           <input type="text" class="form-control" id="vidaUtil" placeholder="Ej: 36 meses">
         </div>
-        <div class="col-12 d-none" data-only-med>
+        <div class="col-12 d-none" data-tramites="medicamentos">
           <label class="form-label small fw-semibold">Condiciones de Almacenamiento</label>
           <textarea class="form-control" id="condicionesAlmacenamiento" rows="2" placeholder="Ej: Conservar a temperatura no mayor de 30°C en lugar seco."></textarea>
         </div>
-        <div class="col-md-4" data-only-cos>
+        <div class="col-md-4 d-none" data-tramites="cosmeticos">
           <label class="form-label small fw-semibold">Clasificación</label>
           <input type="text" class="form-control" id="clasificacion" placeholder="Ej: PRODUCTOS PARA EL CABELLO">
         </div>
-        <div class="col-md-4" data-only-cos>
+        <div class="col-md-4 d-none" data-tramites="cosmeticos">
           <label class="form-label small fw-semibold">Forma Cosmética</label>
           <input type="text" class="form-control" id="formaCosmetica" placeholder="Ej: SHAMPOO / CHAMPÚ">
         </div>
-        <div class="col-12" data-hide-pub>
+        <div class="col-12 d-none" data-tramites="medicamentos,cosmeticos,higienicos,plaguicidas,excepcion">
           <label class="form-label small fw-semibold">Descripción del Envase</label>
           <input type="text" class="form-control" id="descripcionEnvase" placeholder="Ej: FRASCO DE 250 ML">
         </div>
-        <div class="col-12" data-hide-pub>
+        <div class="col-12 d-none" data-tramites="medicamentos,cosmeticos,higienicos,plaguicidas,excepcion">
           <label class="form-label small fw-semibold">Presentación del Producto</label>
           <input type="text" class="form-control" id="descripcionPresentacion" placeholder="Ej: CAJA CON 30 TABLETAS RECUBIERTAS">
         </div>
-        <div class="col-12 d-none" data-only-med>
+        <div class="col-12 d-none" data-tramites="medicamentos">
           <label class="form-label small fw-semibold d-block mb-2">Tipo de Medicamento <span class="text-danger">*</span></label>
           <div id="tipo-med-checks"></div>
         </div>
-        <div class="col-md-6 d-none" data-only-pub>
+        <div class="col-md-6 d-none" data-tramites="publicidad">
           <label class="form-label small fw-semibold">N° de Registro Sanitario del producto <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="numeroRegistroSanitario" placeholder="Ej: RS-12345">
           <div class="form-text">La publicidad debe corresponder a un producto ya registrado.</div>
         </div>
-        <div class="col-md-6 d-none" data-only-pub>
+        <div class="col-md-6 d-none" data-tramites="publicidad">
           <label class="form-label small fw-semibold">Código de la Publicidad</label>
           <input type="text" class="form-control" id="codigoPublicidad" placeholder="Código interno del material, si aplica">
         </div>
-        <div class="col-12 d-none" data-only-pub>
+        <div class="col-12 d-none" data-tramites="publicidad">
           <label class="form-label small fw-semibold d-block mb-2">Tipo de Publicidad <span class="text-danger">*</span></label>
           <div id="tipo-pub-checks"></div>
         </div>
-        <div class="col-12 d-none" data-only-pub>
+        <div class="col-12 d-none" data-tramites="publicidad">
           <label class="form-label small fw-semibold">Descripción breve del material <span class="text-danger">*</span></label>
           <textarea class="form-control" id="descripcionMaterial" rows="2" placeholder="Ej: Spot de radio de 30 segundos para campaña de lanzamiento."></textarea>
+        </div>
+        <div class="col-md-4 d-none" data-tramites="excepcion">
+          <label class="form-label small fw-semibold">Lote a Importar <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="lote" placeholder="Ej: LT-2026-004">
+        </div>
+        <div class="col-md-4 d-none" data-tramites="excepcion">
+          <label class="form-label small fw-semibold">País de Origen <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="paisOrigen" placeholder="Ej: Estados Unidos">
+        </div>
+        <div class="col-md-4 d-none" data-tramites="excepcion">
+          <label class="form-label small fw-semibold">Cantidad a Importar</label>
+          <input type="text" class="form-control" id="cantidadImportar" placeholder="Ej: 500 unidades">
         </div>
       </div>
     </div>

@@ -91,6 +91,10 @@ function renderStep1() {
       </label>
     </div>`).join('');
 
+  // Sync visibility for a resumed case (state.data.tramiteType already set before first render)
+  $('#med-extra')?.classList.toggle('d-none', state.data.tramiteType !== 'medicamentos');
+  $('#excepcion-disclaimer')?.classList.toggle('d-none', state.data.tramiteType !== 'excepcion');
+
   // Tipo de solicitud / registro (only for medicamentos)
   grid.addEventListener('click', e => {
     const card = e.target.closest('.tramite-card');
@@ -101,6 +105,8 @@ function renderStep1() {
     state.data.tramiteType = card.dataset.id;
     const medExtra = $('#med-extra');
     if (medExtra) medExtra.classList.toggle('d-none', state.data.tramiteType !== 'medicamentos');
+    const excDisclaimer = $('#excepcion-disclaimer');
+    if (excDisclaimer) excDisclaimer.classList.toggle('d-none', state.data.tramiteType !== 'excepcion');
   });
 
   // Tipo de registro (Medicamentos only)
@@ -114,13 +120,16 @@ function renderStep1() {
 
 // ── Step 2: Datos del producto ────────────────────────────────────────────────
 function renderStep2() {
-  const isMed = state.data.tramiteType === 'medicamentos';
-  const isCos = state.data.tramiteType === 'cosmeticos';
-  const isPub = state.data.tramiteType === 'publicidad';
-  $$('[data-only-med]').forEach(el => el.classList.toggle('d-none', !isMed));
-  $$('[data-only-cos]').forEach(el => el.classList.toggle('d-none', !isCos));
-  $$('[data-only-pub]').forEach(el => el.classList.toggle('d-none', !isPub));
-  $$('[data-hide-pub]').forEach(el => el.classList.toggle('d-none', isPub));
+  const tramiteType = state.data.tramiteType;
+  const isMed = tramiteType === 'medicamentos';
+  const isPub = tramiteType === 'publicidad';
+
+  // Unified field visibility: an element with data-tramites shows only for
+  // the listed tramiteTypes (comma-separated). No attribute = always shown.
+  $$('[data-tramites]').forEach(el => {
+    const allowed = el.dataset.tramites.split(',').map(s => s.trim());
+    el.classList.toggle('d-none', !allowed.includes(tramiteType));
+  });
 
   // Tipo medicamento checkboxes
   const container = $('#tipo-med-checks');
@@ -160,7 +169,7 @@ function renderStep2() {
                   'viaAdministracion','codigoATC','descripcionEnvase','vidaUtil',
                   'condicionesAlmacenamiento','descripcionPresentacion','clasificacion',
                   'variante','formaCosmetica','numeroRegistroSanitario','codigoPublicidad',
-                  'descripcionMaterial'];
+                  'descripcionMaterial','lote','paisOrigen','cantidadImportar'];
   fields.forEach(f => {
     const el = $(`#${f}`);
     if (el && state.data.product[f]) el.value = state.data.product[f];
@@ -172,7 +181,8 @@ function collectStep2() {
                   'viaAdministracion','condicionVenta','codigoATC','descripcionEnvase',
                   'vidaUtil','condicionesAlmacenamiento','descripcionPresentacion',
                   'tipoPresentacion','clasificacion','variante','formaCosmetica',
-                  'numeroRegistroSanitario','codigoPublicidad','descripcionMaterial'];
+                  'numeroRegistroSanitario','codigoPublicidad','descripcionMaterial',
+                  'lote','paisOrigen','cantidadImportar'];
   const product = {};
   fields.forEach(f => {
     const el = $(`#${f}`);
