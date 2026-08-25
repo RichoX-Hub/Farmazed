@@ -1,6 +1,6 @@
 /**
  * Farmazed API Server v2
- * Exposes: /qr (legacy QR), /api/cases, /api/cases/:id/documents, /mcp
+ * Exposes: /qr (legacy QR), /api/cases, /api/cases/:id/documents, /mcp, /api/admin/pricing
  */
 const express  = require('express');
 const cors     = require('cors');
@@ -87,6 +87,10 @@ app.use('/api/cases/:caseId/documents', documentsRouter);
 const mcpRouter = require('./routes/mcp');
 app.use('/mcp', mcpRouter);
 
+// ── Pricing (admin read + update, portal read) ────────────────────────────────
+const pricingRouter = require('./routes/pricing');
+app.use('/', pricingRouter);
+
 // ── 404 + global error ────────────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: `Not found: ${req.method} ${req.path}` }));
 app.use((err, req, res, next) => { console.error(err); res.status(500).json({ error: err.message }); });
@@ -94,6 +98,10 @@ app.use((err, req, res, next) => { console.error(err); res.status(500).json({ er
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`farmazed-api v2 on :${PORT}`);
-  console.log('  /api/cases -> Case management');
-  console.log('  /mcp       -> Claude Cowork MCP server');
+  console.log('  /api/cases         -> Case management');
+  console.log('  /mcp               -> Claude Cowork MCP server');
+  console.log('  /api/admin/pricing -> Pricing table');
 });
+
+// Export db so routes/pricing.js (and future modules) can import it
+module.exports = { db };

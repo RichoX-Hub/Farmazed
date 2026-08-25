@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Precios — Farmazed Admin</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --border: #dee2e6;
+      --text: #212529;
+      --muted: #6c757d;
+      --accent: #0d6efd;
+      --accent-hover: #0b5ed7;
+      --success: #198754;
+      --danger: #dc3545;
+      --header-bg: #1a2a3a;
+      --header-text: #ffffff;
+      --grupo-bg: #e9ecef;
+      --input-bg: #fff;
+      --input-border: #ced4da;
+      --shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    nav .brand { font-weight: 700; font-size: 16px; letter-spacing: .5px; }
+    nav .sep { opacity: .3; }
+    nav .page-title { opacity: .8; font-size: 13px; }
+    nav .spacer { flex: 1; }
+    nav .user { font-size: 12px; opacity: .7; }
+    nav .logout-btn {
+      background: rgba(255,255,255,.12);
+      border: none;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    nav .logout-btn:hover { background: rgba(255,255,255,.2); }
+
+    /* ── Layout ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    h1 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+    .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+    .notice {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 13px;
+      margin-bottom: 24px;
+      color: #664d03;
+    }
+
+    /* ── Section accordion ── */
+    .grupo-section { margin-bottom: 24px; }
+    .grupo-header {
+      background: var(--grupo-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px 6px 0 0;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grupo-header .count {
+      background: var(--muted);
+      color: #fff;
+      border-radius: 99px;
+      font-size: 11px;
+      padding: 1px 7px;
+      font-weight: 500;
+    }
+    .grupo-header .toggle { margin-left: auto; font-size: 16px; transition: transform .2s; }
+    .grupo-header.collapsed .toggle { transform: rotate(-90deg); }
+    .grupo-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px; overflow: hidden; }
+    .grupo-body.collapsed { display: none; }
+
+    /* ── Price card ── */
+    .price-card {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+      transition: background .15s;
+    }
+    .price-card:last-child { border-bottom: none; }
+    .price-card:hover { background: #f8f9ff; }
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .tramite-name { font-weight: 600; font-size: 14px; flex: 1; min-width: 240px; }
+    .total-display {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .total-display span { font-size: 12px; font-weight: 400; color: var(--muted); }
+
+    /* ── Component grid ── */
+    .components-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .field-group label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 3px;
+      font-weight: 500;
+    }
+    .field-group .input-wrap {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      background: var(--input-bg);
+      overflow: hidden;
+    }
+    .field-group .prefix {
+      padding: 0 8px;
+      background: var(--grupo-bg);
+      color: var(--muted);
+      font-size: 12px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid var(--input-border);
+    }
+    .field-group input[type="number"] {
+      border: none;
+      outline: none;
+      padding: 0 8px;
+      height: 32px;
+      width: 100%;
+      font-size: 13px;
+      background: transparent;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .field-group input[type="number"]:focus { background: #f0f4ff; }
+
+    /* ── Card footer ── */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .notes-input {
+      flex: 1;
+      min-width: 200px;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--input-bg);
+      outline: none;
+    }
+    .notes-input:focus { border-color: var(--accent); color: var(--text); }
+    .save-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .save-btn:hover { background: var(--accent-hover); }
+    .save-btn:disabled { background: var(--muted); cursor: not-allowed; }
+    .feedback {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .feedback.success { display: inline-block; background: #d1e7dd; color: var(--success); }
+    .feedback.error   { display: inline-block; background: #f8d7da; color: var(--danger); }
+
+    /* ── Auth overlay ── */
+    #auth-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999;
+    }
+    .auth-box {
+      background: #fff;
+      border-radius: 10px;
+      padding: 32px;
+      width: 340px;
+      text-align: center;
+    }
+    .auth-box h2 { font-size: 18px; margin-bottom: 8px; }
+    .auth-box p { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+    .auth-box input {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid var(--input-border); border-radius: 6px;
+      font-size: 14px; margin-bottom: 12px; outline: none;
+    }
+    .auth-box input:focus { border-color: var(--accent); }
+    .auth-box button {
+      width: 100%; background: var(--accent); color: #fff;
+      border: none; border-radius: 6px; padding: 10px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .auth-box button:hover { background: var(--accent-hover); }
+    .auth-error { color: var(--danger); font-size: 12px; margin-top: 8px; display: none; }
+
+    /* ── Loading ── */
+    #loading { text-align: center; padding: 60px; color: var(--muted); }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      .components-grid { grid-template-columns: 1fr 1fr; }
+      .card-top { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Auth key overlay -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <h2>Farmazed Admin</h2>
+    <p>Ingresa tu clave de administrador para acceder a la gestión de precios.</p>
+    <input type="password" id="admin-key-input" placeholder="Admin key" autocomplete="current-password" />
+    <button onclick="submitAdminKey()">Acceder</button>
+    <div class="auth-error" id="auth-error">Clave incorrecta. Intenta nuevamente.</div>
+  </div>
+</div>
+
+<!-- Navbar -->
+<nav>
+  <span class="brand">Farmazed</span>
+  <span class="sep">|</span>
+  <span class="page-title">Gestión de Precios</span>
+  <span class="spacer"></span>
+  <span class="user" id="nav-user"></span>
+  <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+</nav>
+
+<!-- Main content -->
+<div class="container">
+  <h1>Tarifas vigentes</h1>
+  <p class="subtitle">Modifica los componentes de cada trámite individualmente. Los cambios se guardan en tiempo real y se reflejan de inmediato en el portal del cliente.</p>
+
+  <div class="notice">
+    ⚠️ <strong>Nota:</strong> Estos precios se muestran como costo estimado en el portal del cliente. Farmazed emite cotización formal antes de iniciar cada trámite.
+  </div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    Cargando tarifas…
+  </div>
+
+  <div id="content" style="display:none"></div>
+</div>
+
+<script>
+  // ── Config ──────────────────────────────────────────────────────────────────
+  const API_BASE = window.location.hostname === 'localhost'
+    ? 'http://localhost:8080'
+    : 'https://api.farmazed.com';
+
+  const COMPONENT_LABELS = {
+    honorarios_farmazed:   'Honorarios Farmazed',
+    honorarios_abogado:    'Honorarios Abogado',
+    gastos_adicionales:    'Gastos Adicionales',
+    refrendo_cnf:          'Refrendo CNF',
+    tasa_dnfd_servicio:    'DNFD Servicio',
+    tasa_dnfd_tramite:     'DNFD Trámite',
+    iea:                   'Análisis IEA',
+    tasa_mef:              'MEF'
+  };
+  const COMPONENT_KEYS = Object.keys(COMPONENT_LABELS);
+
+  let adminKey = '';
+  let allPricing = [];
+
+  // ── Auth ────────────────────────────────────────────────────────────────────
+  async function submitAdminKey() {
+    const val = document.getElementById('admin-key-input').value.trim();
+    if (!val) return;
+
+    // Validate key against a safe endpoint
+    const res = await fetch(`${API_BASE}/api/admin/pricing`, {
+      headers: { 'x-admin-key': val }
+    });
+
+    // GET /api/admin/pricing is public — any success means server is up.
+    // Then do a dry PATCH with an empty body to confirm key validity.
+    const check = await fetch(`${API_BASE}/api/admin/pricing/_key_check`, {
+      method: 'PATCH',
+      headers: { 'x-admin-key': val, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ components: {} })
+    });
+    // 404 (category not found) = key accepted; 401 = key rejected.
+    if (check.status === 401) {
+      document.getElementById('auth-error').style.display = 'block';
+      return;
+    }
+
+    adminKey = val;
+    document.getElementById('auth-overlay').style.display = 'none';
+    loadPricing();
+  }
+
+  document.getElementById('admin-key-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitAdminKey();
+  });
+
+  function logout() {
+    adminKey = '';
+    location.reload();
+  }
+
+  // ── Load ────────────────────────────────────────────────────────────────────
+  async function loadPricing() {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/pricing`);
+      const data = await res.json();
+      allPricing = data.pricing || [];
+      renderPricing(allPricing);
+    } catch (err) {
+      document.getElementById('loading').innerHTML =
+        '<p style="color:var(--danger)">Error al cargar los precios. Verifica la conexión con la API.</p>';
+    }
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+  function renderPricing(pricing) {
+    document.getElementById('loading').style.display = 'none';
+    const content = document.getElementById('content');
+    content.style.display = 'block';
+
+    const grupos = [...new Set(pricing.map(p => p.grupo))];
+    const ORDER = ['Registros Nuevos', 'Modificaciones', 'Renovaciones'];
+    grupos.sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b));
+
+    content.innerHTML = grupos.map(grupo => {
+      const items = pricing.filter(p => p.grupo === grupo);
+      return `
+        <div class="grupo-section">
+          <div class="grupo-header" onclick="toggleGrupo(this)">
+            ${grupo}
+            <span class="count">${items.length}</span>
+            <span class="toggle">▾</span>
+          </div>
+          <div class="grupo-body">
+            ${items.map(renderCard).join('')}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderCard(item) {
+    const comps = item.components || {};
+    const fieldsHtml = COMPONENT_KEYS.map(k => `
+      <div class="field-group">
+        <label>${COMPONENT_LABELS[k]}</label>
+        <div class="input-wrap">
+          <span class="prefix">B/.</span>
+          <input type="number" min="0" step="1"
+            data-key="${k}" data-id="${item.id}"
+            value="${comps[k] || 0}"
+            oninput="recomputeTotal('${item.id}')" />
+        </div>
+      </div>`).join('');
+
+    return `
+      <div class="price-card" id="card-${item.id}">
+        <div class="card-top">
+          <div class="tramite-name">${item.name}</div>
+          <div class="total-display" id="total-${item.id}">
+            B/. ${(item.total || 0).toLocaleString('es-PA')}
+            <span>total</span>
+          </div>
+        </div>
+        <div class="components-grid">${fieldsHtml}</div>
+        <div class="card-footer">
+          <input class="notes-input" placeholder="Notas internas (opcional)"
+            id="notes-${item.id}" value="${item.notes || ''}" />
+          <button class="save-btn" onclick="saveCategory('${item.id}')">Guardar</button>
+          <span class="feedback" id="fb-${item.id}"></span>
+        </div>
+      </div>`;
+  }
+
+  // ── Compute total live ───────────────────────────────────────────────────────
+  function recomputeTotal(categoryId) {
+    const inputs = document.querySelectorAll(`[data-id="${categoryId}"]`);
+    let total = 0;
+    inputs.forEach(inp => { total += parseFloat(inp.value) || 0; });
+    const el = document.getElementById(`total-${categoryId}`);
+    el.innerHTML = `B/. ${total.toLocaleString('es-PA')} <span>total</span>`;
+  }
+
+  // ── Save ─────────────────────────────────────────────────────────────────────
+  async function saveCategory(categoryId) {
+    const inputs = document.querySelectorAll(`[data-id="${categoryId}"]`);
+    const components = {};
+    inputs.forEach(inp => { components[inp.dataset.key] = parseFloat(inp.value) || 0; });
+    const notes = document.getElementById(`notes-${categoryId}`).value;
+
+    const btn = document.querySelector(`#card-${categoryId} .save-btn`);
+    const fb  = document.getElementById(`fb-${categoryId}`);
+
+    btn.disabled = true;
+    btn.textContent = 'Guardando…';
+    fb.className = 'feedback';
+    fb.style.display = 'none';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/pricing/${categoryId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminKey,
+          'x-updated-by': 'admin-ui'
+        },
+        body: JSON.stringify({ components, notes })
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      fb.className = 'feedback success';
+      fb.textContent = '✓ Guardado';
+    } catch (err) {
+      fb.className = 'feedback error';
+      fb.textContent = '✗ Error al guardar';
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Guardar';
+      fb.style.display = 'inline-block';
+      setTimeout(() => { fb.style.display = 'none'; }, 4000);
+    }
+  }
+
+  // ── Toggle accordion ─────────────────────────────────────────────────────────
+  function toggleGrupo(header) {
+    header.classList.toggle('collapsed');
+    header.nextElementSibling.classList.toggle('collapsed');
+  }
+</script>
+</body>
+</html>
